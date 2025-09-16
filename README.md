@@ -8,7 +8,7 @@ For system requirements you [Check Laravel Requirement](https://laravel.com/docs
 
 ### Clone the repository from github.
 
-git clone https://github.com/tiarapr/laravel-pos
+git clone https://github.com/HeraClass/pos_toko
 
 ### Install dependencies
 
