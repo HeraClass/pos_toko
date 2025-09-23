@@ -47,5 +47,7 @@ return [
     'Quantity' => 'Quantity',
     'Balance' => 'Balance',
     'Total_Summary' => 'Total',
+    'start_date' => 'Start Date',
+    'end_date' => 'End Date',
 
 ];

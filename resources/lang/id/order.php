@@ -47,5 +47,7 @@ return [
     'Quantity' => 'Kuantitas',
     'Balance' => 'Sisa',
     'Total_Summary' => 'Total',
+    'start_date' => 'Mulai Tanggal',
+    'end_date' => 'Sampai Tanggal',
 
 ];

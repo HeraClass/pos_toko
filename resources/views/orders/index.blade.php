@@ -318,6 +318,7 @@
             <form action="{{route('orders.index')}}" class="filter-form">
                 <div class="row">
                     <div class="col-md-3">
+                        <label for="start date" class="form-label">{{ __('order.start_date') }}</label>
                         <div class="form-group date-input">
                             <i class="fas fa-calendar-alt"></i>
                             <input type="date" name="start_date" class="form-control" value="{{request('start_date')}}"
@@ -325,6 +326,7 @@
                         </div>
                     </div>
                     <div class="col-md-3">
+                        <label for="end date" class="form-label">{{ __('order.end_date') }}</label>
                         <div class="form-group date-input">
                             <i class="fas fa-calendar-alt"></i>
                             <input type="date" name="end_date" class="form-control" value="{{request('end_date')}}"
