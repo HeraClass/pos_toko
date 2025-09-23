@@ -31,7 +31,7 @@ return [
     'received_amount' => 'Jumlah Diterima',
     'confirm_pay' => 'Terima',
     'cancel_pay' => 'Batal',
-    'general_customer' => 'Pelanggan Umum',
+    'general_customer' => 'Pelanggan WALK-IN',
     'product_name' => 'Nama Produk',
     'quantity' => 'Jumlah',
     'price' => 'Harga',

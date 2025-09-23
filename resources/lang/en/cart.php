@@ -31,7 +31,7 @@ return [
     'received_amount'   => 'Received Amount',
     'confirm_pay'       => 'Receive',
     'cancel_pay'        => 'Cancel',
-    'general_customer'  => 'General Customer',
+    'general_customer'  => 'WALK-IN Customer',
     'product_name'      => 'Product Name',
     'quantity'          => 'Quantity',
     'price'             => 'Price',

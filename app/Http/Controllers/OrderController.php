@@ -34,28 +34,49 @@ class OrderController extends Controller
 
     public function store(OrderStoreRequest $request)
     {
+        $user = $request->user();
+        $cart = $user->cart()->get();
+
+        // Cek stok tiap item sebelum buat order
+        foreach ($cart as $item) {
+            if ($item->pivot->quantity > $item->quantity) {
+                return response([
+                    'message' => __('cart.available', ['quantity' => $item->quantity]),
+                ], 400);
+            }
+        }
+
+        // Jika semua valid, lanjut buat order
         $order = Order::create([
             'customer_id' => $request->customer_id,
-            'user_id' => $request->user()->id,
+            'user_id' => $user->id,
         ]);
 
-        $cart = $request->user()->cart()->get();
         foreach ($cart as $item) {
             $order->items()->create([
                 'price' => $item->price * $item->pivot->quantity,
                 'quantity' => $item->pivot->quantity,
                 'product_id' => $item->id,
             ]);
-            $item->quantity = $item->quantity - $item->pivot->quantity;
-            $item->save();
+
+            // kurangi stok produk
+            $item->decrement('quantity', $item->pivot->quantity);
         }
-        $request->user()->cart()->detach();
+
+        // kosongkan cart setelah checkout
+        $user->cart()->detach();
+
         $order->payments()->create([
             'amount' => $request->amount,
-            'user_id' => $request->user()->id,
+            'user_id' => $user->id,
         ]);
-        return 'success';
+
+        return response()->json([
+            'success' => true,
+            'order_id' => $order->id,
+        ]);
     }
+
     public function partialPayment(Request $request)
     {
         // return $request;

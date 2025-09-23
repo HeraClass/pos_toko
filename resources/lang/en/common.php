@@ -19,12 +19,17 @@ return [
     'Logout'        => 'Logout',
     'success'       => 'success',
     'Create'        => 'Create',
+    'Creating'      => 'Creating',
     'Update'        => 'Update',
+    'Cancel'        => 'Cancel',
     'Created_At'    => 'Created At',
     'Actions'       => 'Actions',
     'Active'        => 'Active',
     'Inactive'      => 'Inactive',
     'More_info'     => 'More info',
+    'Thank_You'     => 'Thank You !',
+    'Close'         => 'Close',
+    'Print'         => 'Print',
 
     //==========================================
     // Footer messages

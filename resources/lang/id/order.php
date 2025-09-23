@@ -34,6 +34,18 @@ return [
     'Partial' => 'Sebagian',
     'Paid' => 'Lunas',
     'Change' => 'Kembalian',
-    'Actions' => 'Aksi'
+    'Actions' => 'Aksi',
+    'View_Invoice' => 'Lihat Faktur',
+    'Invoice' => 'Faktur',
+    'Order_ID' => 'Order ID',
+    'Date' => 'Tanggal Order',
+    'Time' => 'Waktu',
+    'Customer' => 'Pelanggan',
+    'Item' => 'Item',
+    'Description' => 'Deskripsi',
+    'Price' => 'Harga',
+    'Quantity' => 'Kuantitas',
+    'Balance' => 'Sisa',
+    'Total_Summary' => 'Total',
 
 ];

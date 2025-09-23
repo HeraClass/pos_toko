@@ -18,12 +18,17 @@ return [
     'Logout' => 'Keluar',
     'success' => 'berhasil',
     'Create' => 'Buat',
+    'Creating' => 'Membuat...',
     'Update' => 'Perbarui',
+    'Cancel'        => 'Batal',
     'Created_At' => 'Dibuat Pada',
     'Actions' => 'Aksi',
     'Active' => 'Aktif',
     'Inactive' => 'Tidak Aktif',
     'More_info' => 'Info Lebih Lanjut',
+    'Thank_You'     => 'Terima Kasih !',
+    'Close'         => 'Tutup',
+    'Print'         => 'Cetak',
 
     //==========================================
     // Pesan footer

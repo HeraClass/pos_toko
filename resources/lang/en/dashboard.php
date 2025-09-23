@@ -21,8 +21,24 @@ return [
     //==========================================
     // General module messages
     //==========================================
-    'Income'            => 'Income',
-    'Income_Today'      => 'Income Today',
-    'Customers_Count'   => 'Customers Count',
-    'Orders_Count'      => 'Orders Count',
+    'Income' => 'Income',
+    'Income_Today' => 'Income Today',
+    'Customers_Count' => 'Customers Count',
+    'Orders_Count' => 'Orders Count',
+    'Low_Stock_Product' => 'Low Stock Product',
+    'No_Low_Stock_Products' => 'No Low Stock Products Available',
+    'Hot_Products' => 'Hot Products',
+    'No_Hot_Products' => 'No Hot Products Available',
+    'Hot_Products_Of_Year' => 'Hot Products of the Year',
+    'No_Yearly_Hot_Products' => 'No Hot Products of the Year Available',
+    'Best_Selling_Products' => 'Best Selling Products',
+    'No_Best_Selling_Products' => 'No Best Selling Products Available',
+    'ID' => 'ID',
+    'Name' => 'Name',
+    'Image' => 'Image',
+    'Barcode' => 'Barcode',
+    'Price' => 'Price',
+    'Quantity' => 'Quantity',
+    'Status' => 'Status',
+    'Updated_At' => 'Updated At',
 ];

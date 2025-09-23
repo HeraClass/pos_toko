@@ -16,24 +16,36 @@ return [
     //==========================================
     // Orders module messages
     //==========================================
-    'title'         => 'Orders',
-    'submit'        => 'Filter',
-    'Orders_List'   => 'Orders List',
+    'title' => 'Orders',
+    'submit' => 'Filter',
+    'Orders_List' => 'Orders List',
 
     //==========================================
     // Table module messages
     //==========================================
-    'ID'                => 'ID',
-    'Customer_Name'     => 'Customer Name',
-    'Total'             => 'Total',
-    'Received_Amount'   => 'Received Amount',
-    'Status'            => 'Status',
-    'To_Pay'            => 'To Pay',
-    'Created_At'        => 'Created At',
-    'Not_Paid'          => 'Not Paid',
-    'Partial'           => 'Partial',
-    'Paid'              => 'Paid',
-    'Change'            => 'Change',
-    'Actions'           => 'Actions'
+    'ID' => 'ID',
+    'Customer_Name' => 'Customer Name',
+    'Total' => 'Total',
+    'Received_Amount' => 'Received Amount',
+    'Status' => 'Status',
+    'To_Pay' => 'To Pay',
+    'Created_At' => 'Created At',
+    'Not_Paid' => 'Not Paid',
+    'Partial' => 'Partial',
+    'Paid' => 'Paid',
+    'Change' => 'Change',
+    'Actions' => 'Actions',
+    'View_Invoice' => 'View Invoice',
+    'Invoice' => 'Invoice',
+    'Order_ID' => 'Order ID',
+    'Date' => 'Date',
+    'Time' => 'Time',
+    'Customer' => 'Customer',
+    'Item' => 'Item',
+    'Description' => 'Description',
+    'Price' => 'Price',
+    'Quantity' => 'Quantity',
+    'Balance' => 'Balance',
+    'Total_Summary' => 'Total',
 
 ];
