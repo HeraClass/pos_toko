@@ -316,11 +316,6 @@
                 <h1>{{ config('app.name') }}</h1>
                 <p>Sistem Kasir Digital untuk UMKM: Toko Kelontong Pak Dedi</p>
             </div>
-            <ul class="features">
-                <li><i class="fas fa-check"></i> Login aman & terpercaya</li>
-                <li><i class="fas fa-check"></i> Dashboard mudah digunakan</li>
-                <li><i class="fas fa-check"></i> Tampilan responsif di semua perangkat</li>
-            </ul>
         </div>
         <div class="login-right">
             <div class="login-header">

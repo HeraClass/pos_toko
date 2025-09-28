@@ -303,6 +303,12 @@
             align-items: center;
             gap: 1rem;
         }
+
+        .btn i {
+            font-size: 14px;   /* kecilin ukuran icon */
+            margin-right: 6px; /* kasih jarak biar gak nempel teks */
+            padding: auto
+        }
     </style>
 @endsection
 
@@ -371,10 +377,10 @@
                                 <tr>
                                     <td colspan="8">
                                         <div class="empty-state">
-                                            <i class="fas fa-users"></i>
+                                            <i class="fas fa-users fa-2x"></i>
                                             <p>{{ __('customer.No_Customers_Found') }}</p>
                                             <a href="{{route('customers.create')}}" class="btn btn-primary">
-                                                <i class="fas fa-user-plus"></i> {{ __('customer.Add_Customer') }}
+                                                <i class="fas fa-user-plus fa-sm"></i> {{ __('customer.Add_Customer') }}
                                             </a>
                                         </div>
                                     </td>
