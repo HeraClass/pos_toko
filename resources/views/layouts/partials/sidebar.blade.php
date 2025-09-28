@@ -39,6 +39,12 @@
                     <span class="nav-text">{{ __('customer.title') }}</span>
                 </a>
             </li>
+              <li class="nav-item">
+                <a href="{{ route('suppliers.index') }}" class="nav-link {{ activeSegment('suppliers') }}">
+                    <span class="nav-icon"><i class="fas fa-users"></i></span>
+                    <span class="nav-text">{{ __('suppliers.title') }}</span>
+                </a>
+            </li>
             <li class="nav-item">
                 <a href="{{ route('settings.index') }}" class="nav-link {{ activeSegment('settings') }}">
                     <span class="nav-icon"><i class="fas fa-cog"></i></span>
