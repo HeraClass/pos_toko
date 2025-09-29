@@ -21,8 +21,11 @@ return [
     //==========================================
     // General module messages
     //==========================================
+    'No_suppliers_Found' => 'No Supplier Found',
+    'Add_supplier' => 'Add Supplier',
     'working' => 'Working Supplier',
     'Create_Supplier' => 'Create Supplier',
+    'Edit_supplier' => 'Edit Supplier',
     'First_Name' => 'First Name',
     'Last_Name' => 'Last Name',
     'Name' => 'Name',
@@ -44,6 +47,8 @@ return [
     'sure' => 'Are you sure?',
     'really_delete' => 'Do you really want to delete this Supplier?',
     'yes_delete' => 'Yes, delete it!',
+    'deleted' => 'Supplier deleted',
+    'deleted_message' => 'Supplier already deleted',
     'No' => 'No',
     'Actions' => 'Actions',
     'No_Suppliers_Found' => "No Supplier"

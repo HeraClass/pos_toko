@@ -1,11 +1,11 @@
 @extends('layouts.admin')
 
-@section('title', __('supplier.Create_supplier'))
-@section('content-header', __('supplier.Create_supplier'))
+@section('title', __('supplier.Edit_supplier'))
+@section('content-header', __('supplier.Edit_supplier'))
 
 @section('css')
     <style>
-        .supplier-create-container {
+        .supplier-edit-container {
             padding: 0.5rem;
         }
 
@@ -311,31 +311,32 @@
 @endsection
 
 @section('content')
-    <div class="supplier-create-container">
+    <div class="supplier-edit-container">
         <div class="card">
             <div class="card-body">
-                <form action="{{ route('suppliers.store') }}" method="POST" enctype="multipart/form-data" id="supplierForm">
+                <form action="{{ route('suppliers.update', $supplier->id) }}" method="POST" enctype="multipart/form-data" id="supplierForm">
                     @csrf
+                    @method('PUT')
 
                     <div class="form-section">
                         <div class="form-grid">
                             <div class="form-group">
-                                <label for="first_name"
-                                    class="form-label required-field">{{ __('supplier.First_Name') }}</label>
+                                <label for="first_name" class="form-label required-field">{{ __('supplier.First_Name') }}</label>
                                 <input type="text" name="first_name"
-                                    class="form-control @error('first_name') is-invalid @enderror" id="first_name"
-                                    placeholder="{{ __('supplier.First_Name') }}" value="{{ old('first_name') }}" required>
+                                    class="form-control @error('first_name') is-invalid @enderror"
+                                    id="first_name"
+                                    value="{{ old('first_name', $supplier->first_name) }}" required>
                                 @error('first_name')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
 
                             <div class="form-group">
-                                <label for="last_name"
-                                    class="form-label required-field">{{ __('supplier.Last_Name') }}</label>
+                                <label for="last_name" class="form-label required-field">{{ __('supplier.Last_Name') }}</label>
                                 <input type="text" name="last_name"
-                                    class="form-control @error('last_name') is-invalid @enderror" id="last_name"
-                                    placeholder="{{ __('supplier.Last_Name') }}" value="{{ old('last_name') }}" required>
+                                    class="form-control @error('last_name') is-invalid @enderror"
+                                    id="last_name"
+                                    value="{{ old('last_name', $supplier->last_name) }}" required>
                                 @error('last_name')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -347,8 +348,10 @@
                         <div class="form-grid">
                             <div class="form-group">
                                 <label for="email" class="form-label">{{ __('supplier.Email') }}</label>
-                                <input type="email" name="email" class="form-control @error('email') is-invalid @enderror"
-                                    id="email" placeholder="{{ __('supplier.Email') }}" value="{{ old('email') }}">
+                                <input type="email" name="email"
+                                    class="form-control @error('email') is-invalid @enderror"
+                                    id="email"
+                                    value="{{ old('email', $supplier->email) }}">
                                 @error('email')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -356,8 +359,10 @@
 
                             <div class="form-group">
                                 <label for="phone" class="form-label required-field">{{ __('supplier.Phone') }}</label>
-                                <input type="tel" name="phone" class="form-control @error('phone') is-invalid @enderror"
-                                    id="phone" placeholder="{{ __('supplier.Phone') }}" value="{{ old('phone') }}" required>
+                                <input type="tel" name="phone"
+                                    class="form-control @error('phone') is-invalid @enderror"
+                                    id="phone"
+                                    value="{{ old('phone', $supplier->phone) }}" required>
                                 @error('phone')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -369,8 +374,7 @@
                         <div class="form-group">
                             <label for="address" class="form-label">{{ __('supplier.Address') }}</label>
                             <textarea name="address" class="form-control @error('address') is-invalid @enderror"
-                                id="address" placeholder="{{ __('supplier.Address') }}"
-                                rows="3">{{ old('address') }}</textarea>
+                                id="address" rows="3">{{ old('address', $supplier->address) }}</textarea>
                             @error('address')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -381,13 +385,19 @@
                         <div class="form-group">
                             <label for="avatar" class="form-label">{{ __('supplier.Avatar') }}</label>
 
-                            <div class="avatar-preview" id="avatarPreview">
-                                <img src="" alt="Avatar preview" class="img-preview">
-                            </div>
-
-                            <div class="avatar-placeholder" id="avatarPlaceholder">
-                                <div>{{ __('supplier.No_Avatar_Selected') }}</div>
-                            </div>
+                            {{-- Preview avatar lama --}}
+                            @if ($supplier->avatar)
+                                <div class="avatar-preview" id="avatarPreview" style="display:block;">
+                                    <img src="{{ asset('storage/' . $supplier->avatar) }}" alt="Avatar preview" class="img-preview">
+                                </div>
+                            @else
+                                <div class="avatar-placeholder" id="avatarPlaceholder">
+                                    <div>{{ __('supplier.No_Avatar_Selected') }}</div>
+                                </div>
+                                <div class="avatar-preview" id="avatarPreview" style="display:none;">
+                                    <img src="" alt="Avatar preview" class="img-preview">
+                                </div>
+                            @endif
 
                             <div class="custom-file" style="margin-top: 1rem;">
                                 <input type="file" class="custom-file-input @error('avatar') is-invalid @enderror"
@@ -408,7 +418,7 @@
                             <i class="fas fa-times"></i> {{ __('common.Cancel') }}
                         </a>
                         <button type="submit" class="btn btn-primary" id="submitBtn">
-                            <i class="fas fa-user-plus"></i> {{ __('common.Create') }}
+                            <i class="fas fa-save"></i> {{ __('common.Update') }}
                         </button>
                     </div>
                 </form>
@@ -421,10 +431,8 @@
     <script src="{{ asset('plugins/bs-custom-file-input/bs-custom-file-input.min.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Initialize custom file input
             bsCustomFileInput.init();
 
-            // Avatar preview functionality
             const avatarInput = document.getElementById('avatar');
             const avatarPreview = document.getElementById('avatarPreview');
             const avatarPlaceholder = document.getElementById('avatarPlaceholder');
@@ -438,55 +446,31 @@
                     reader.onload = function (e) {
                         previewImg.src = e.target.result;
                         avatarPreview.style.display = 'block';
-                        avatarPlaceholder.style.display = 'none';
+                        if (avatarPlaceholder) avatarPlaceholder.style.display = 'none';
                     }
                     reader.readAsDataURL(file);
                     avatarLabel.textContent = file.name;
                 } else {
+                    if (avatarPlaceholder) avatarPlaceholder.style.display = 'flex';
                     avatarPreview.style.display = 'none';
-                    avatarPlaceholder.style.display = 'flex';
                     avatarLabel.textContent = '{{ __("supplier.Choose_file") }}';
                 }
             });
 
-            // Form submission handling
             const supplierForm = document.getElementById('supplierForm');
             const submitBtn = document.getElementById('submitBtn');
 
             supplierForm.addEventListener('submit', function () {
-                // Add loading state to submit button
                 submitBtn.classList.add('btn-loading');
                 submitBtn.disabled = true;
-                submitBtn.innerHTML = '<i class="fas fa-spinner"></i> {{ __("common.Creating") }}';
+                submitBtn.innerHTML = '<i class="fas fa-spinner"></i> {{ __("common.Updating") }}';
             });
 
-            // Phone number formatting
             const phoneInput = document.getElementById('phone');
             phoneInput.addEventListener('input', function () {
-                // Remove non-numeric characters
-                this.value = this.value.replace(/(?!^)\+/g, '').replace(/[^0-9+]/g, '');
-            });
-
-            // Email validation hint
-            const emailInput = document.getElementById('email');
-            emailInput.addEventListener('blur', function () {
-                if (this.value && !this.checkValidity()) {
-                    this.classList.add('is-invalid');
-                } else {
-                    this.classList.remove('is-invalid');
-                }
-            });
-
-            // Real-time validation for required fields
-            const requiredFields = document.querySelectorAll('input[required]');
-            requiredFields.forEach(field => {
-                field.addEventListener('blur', function () {
-                    if (!this.value) {
-                        this.classList.add('is-invalid');
-                    } else {
-                        this.classList.remove('is-invalid');
-                    }
-                });
+                this.value = this.value
+                    .replace(/(?!^)\+/g, '')  // hanya + di awal
+                    .replace(/[^0-9+]/g, ''); // sisanya angka saja
             });
         });
     </script>

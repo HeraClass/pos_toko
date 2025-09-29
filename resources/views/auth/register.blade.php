@@ -335,14 +335,8 @@
         <div class="register-left">
             <div class="brand">
                 <h1>{{ config('app.name') }}</h1>
-                <p>Daftar sekarang & mulai kelola Toko Kelontong Pak Dedi dengan mudah</p>
+                <p>Sistem Informasi Inventory dan Penjualan UMKM</p>
             </div>
-            <ul class="features">
-                <li><i class="fas fa-check"></i> Akses penuh ke fitur kasir digital</li>
-                <li><i class="fas fa-check"></i> Pengalaman penggunaan yang praktis</li>
-                <li><i class="fas fa-check"></i> Data transaksi aman & terlindungi</li>
-                <li><i class="fas fa-check"></i> Bantuan & dukungan setiap saat</li>
-            </ul>
         </div>
         <div class="register-right">
             <div class="register-header">

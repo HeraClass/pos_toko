@@ -56,7 +56,6 @@ class SupplierController extends Controller
             'phone' => $request->phone,
             'address' => $request->address,
             'avatar' => $avatar_path,
-            'user_id' => $request->user()->id,
         ]);
 
         if (!$supplier) {

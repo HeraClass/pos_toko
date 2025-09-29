@@ -23,6 +23,8 @@ return [
     //==========================================
     // Table module messages
     //==========================================
+    'No_Orders_Found' => 'No Orders Found',
+    'Create_First_Order' => 'Create First Order',
     'ID' => 'ID',
     'Customer_Name' => 'Customer Name',
     'Total' => 'Total',

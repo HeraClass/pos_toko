@@ -21,6 +21,7 @@ return [
     'Create'        => 'Create',
     'Creating'      => 'Creating',
     'Update'        => 'Update',
+    'Updating'      => 'Updating',
     'Cancel'        => 'Cancel',
     'Created_At'    => 'Created At',
     'Actions'       => 'Actions',

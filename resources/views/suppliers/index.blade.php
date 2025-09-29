@@ -434,8 +434,8 @@
                                 .then(data => {
                                     if (data.success) {
                                         Swal.fire({
-                                            title: '{{ __("supplier.Deleted") }}',
-                                            text: '{{ __("supplier.Deleted_Message") }}',
+                                            title: '{{ __("supplier.deleted") }}',
+                                            text: '{{ __("supplier.deleted_message") }}',
                                             icon: 'success',
                                             confirmButtonColor: '#4361ee'
                                         });

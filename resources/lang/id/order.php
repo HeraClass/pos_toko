@@ -23,6 +23,8 @@ return [
     //==========================================
     // Table module messages
     //==========================================
+    'No_Orders_Found' => 'Tidak Ada Pesanan',
+    'Create_First_Order' => 'Buat Pesanan Pertama',
     'ID' => 'ID',
     'Customer_Name' => 'Nama Pelanggan',
     'Total' => 'Total',

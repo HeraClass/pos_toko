@@ -21,8 +21,11 @@ return [
     //==========================================
     // General module messages
     //==========================================
+    'No_suppliers_Found' => 'Pemasok Tidak ditemukan',
+    'Add_supplier' => 'Tambah Pemasok',
     'working' => 'Pemasok Aktif',
     'Create_Supplier' => 'Buat Pemasok',
+    'Edit_supplier' => 'Ubah Pemasok',
     'First_Name' => 'Nama Depan',
     'Last_Name' => 'Nama Belakang',
     'Name' => 'Nama',
@@ -44,6 +47,8 @@ return [
     'sure' => 'Apakah Anda yakin??',
     'really_delete' => 'Apakah Anda benar-benar ingin menghapus pelanggan ini?',
     'yes_delete' => 'Ya, Hapus!',
+    'deleted' => 'Pemasok dihapus',
+    'deleted_message' => 'Supplier sudah dihapus',
     'No' => 'Tidak',
     'Actions' => 'Aksi',
     'No_Suppliers_Found' => "Tidak ditemukan"

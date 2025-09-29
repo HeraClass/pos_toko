@@ -314,7 +314,7 @@
         <div class="login-left">
             <div class="brand">
                 <h1>{{ config('app.name') }}</h1>
-                <p>Sistem Kasir Digital untuk UMKM: Toko Kelontong Pak Dedi</p>
+                <p>Sistem Informasi Inventory dan Penjualan UMKM</p>
             </div>
         </div>
         <div class="login-right">

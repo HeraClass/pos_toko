@@ -448,7 +448,7 @@
                 } else {
                     avatarPreview.style.display = 'none';
                     avatarPlaceholder.style.display = 'flex';
-                    avatarLabel.textContent = '{{ __("customer.Choose_avatar_file") }}';
+                    avatarLabel.textContent = '{{ __("customer.Choose_file") }}';
                 }
             });
 
@@ -467,7 +467,7 @@
             const phoneInput = document.getElementById('phone');
             phoneInput.addEventListener('input', function () {
                 // Remove non-numeric characters
-                this.value = this.value.replace(/[^\d+]/g, '');
+                this.value = this.value.replace(/(?!^)\+/g, '').replace(/[^0-9+]/g, '');
             });
 
             // Email validation hint

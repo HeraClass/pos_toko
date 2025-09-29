@@ -19,6 +19,7 @@ return [
     'success' => 'berhasil',
     'Create' => 'Buat',
     'Creating' => 'Membuat...',
+    'Updating' => 'Memperbarui...',
     'Update' => 'Perbarui',
     'Cancel'        => 'Batal',
     'Created_At' => 'Dibuat Pada',
