@@ -53,5 +53,6 @@ return [
     'yes_delete' => 'Ya, hapus!',
     'No' => 'Tidak',
     'Actions' => 'Aksi',
-    'No_Customers_Found' => 'Tidak ditemukan'
+    'No_Customers_Found' => 'Pelanggan Tidak Ditemukan',
+    'Create_First_Customer' => 'Buat Pelanggan Pertama',
 ];

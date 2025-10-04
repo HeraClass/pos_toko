@@ -36,5 +36,7 @@ return [
     'Preview' => 'Pratinjau',
     'Warning_Preview' => 'Produk dengan jumlah di bawah',
     'units' => 'unit akan ditandai sebagai stok menipis',
-    'updating' => 'Memperbarui'
+    'updating' => 'Memperbarui',
+    'App_Name' => 'Nama Aplikasi',
+    'Currency_Symbol' => 'Simbol Mata Uang',
 ];

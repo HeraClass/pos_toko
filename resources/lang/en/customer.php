@@ -55,5 +55,6 @@ return [
     'yes_delete' => 'Yes, delete it!',
     'No' => 'No',
     'Actions' => 'Actions',
-    'No_Customers_Found' => "No Customer"
+    'No_Customers_Found' => "No Customers Found",
+    'Create_First_Customer' => 'Create First Customers',
 ];

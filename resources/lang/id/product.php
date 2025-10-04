@@ -63,4 +63,10 @@ return [
     'Small' => 'Kecil',
     'Medium' => 'Sedang',
     'Large' => 'Besar',
+    'Delete' => 'Hapus',
+    'No_Customers_Found' => 'Tidak Ada Customer Yang Di Temukan',
+    'Create_First_Product' => 'Tambahkan Produk Pertama',
+    'Deleted_Message' => 'Berhasil Menghapus!',
+    'No_Products_Found' => 'Produk Tidak Ditemukan',
+    'Add_Products' => 'Tambahkan Produk',
 ];

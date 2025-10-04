@@ -51,5 +51,5 @@ return [
     'deleted_message' => 'Supplier already deleted',
     'No' => 'No',
     'Actions' => 'Actions',
-    'No_Suppliers_Found' => "No Supplier"
+    'No_Suppliers_Found' => "No Suppliers Found"
 ];

@@ -64,4 +64,9 @@ return [
     'Small' => 'Small',
     'Medium' => 'Medium',
     'Large' => 'Large',
+    'Deleted' => 'Deleted',
+    'Deleted_Message' => 'Delete Succeed',
+    'No_Products_Found' => 'No Product Found',
+    'Add_Products' => 'Add Products',
+    'Create_First_Product' => 'Create First Product',
 ];
