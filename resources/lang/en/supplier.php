@@ -47,9 +47,9 @@ return [
     'sure' => 'Are you sure?',
     'really_delete' => 'Do you really want to delete this Supplier?',
     'yes_delete' => 'Yes, delete it!',
-    'deleted' => 'Supplier deleted',
-    'deleted_message' => 'Supplier already deleted',
+    'deleted' => 'Delete Success',
+    'deleted_message' => 'Supplier Has Been Deleted',
     'No' => 'No',
     'Actions' => 'Actions',
-    'No_Suppliers_Found' => "No Suppliers Found"
+    'No_Suppliers_Found' => "No Supplier",
 ];

@@ -367,6 +367,17 @@
         .price-input {
             padding-left: 30px;
         }
+
+        /* Style untuk category badge */
+        .category-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            background-color: #e2e8f0;
+            color: #4a5568;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-left: 0.5rem;
+        }
     </style>
 @endsection
 
@@ -403,25 +414,22 @@
 
                     <div class="form-section">
                         <div class="form-grid">
-                            <div class="form-group">
-                                <label for="price" class="form-label">{{ __('product.Price') }} *</label>
-                                <div class="form-group">
-                                    <input type="number" name="price" class="form-control @error('price') is-invalid @enderror"
-                                        id="price" placeholder="{{ __('product.Price') }}" value="{{ old('price') }}"
-                                        min="0" required>
-                                </div>
-                                @error('price')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
+                            
 
-                            <div class="form-group">
-                                <label for="quantity" class="form-label">{{ __('product.Quantity') }} *</label>
-                                <input type="number" name="quantity"
-                                    class="form-control @error('quantity') is-invalid @enderror" id="quantity"
-                                    placeholder="{{ __('product.Quantity') }}" value="{{ old('quantity', 1) }}"
-                                    min="1" required>
-                                @error('quantity')
+                            <!-- FIELD CATEGORY_ID -->
+                            <div class="form-group select-form-group">
+                                <label for="category_id" class="form-label">{{ __('product.Category') }}</label>
+                                <select name="category_id" class="form-control @error('category_id') is-invalid @enderror"
+                                    id="category_id">
+                                    <option value="">{{ __('product.Select_Category') }}</option>
+                                    @foreach($categories as $category)
+                                        <option value="{{ $category->id }}" 
+                                            {{ old('category_id') == $category->id ? 'selected' : '' }}>
+                                            {{ $category->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('category_id')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -438,6 +446,33 @@
                                     </option>
                                 </select>
                                 @error('status')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+    </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="price" class="form-label">{{ __('product.Price') }} *</label>
+                                <div class="form-group">
+                                    <input type="number" name="price" class="form-control @error('price') is-invalid @enderror"
+                                        id="price" placeholder="{{ __('product.Price') }}" value="{{ old('price') }}"
+                                        min="0" step="0.01" required>
+                                </div>
+                                @error('price')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="form-group">
+                                <label for="quantity" class="form-label">{{ __('product.Quantity') }} *</label>
+                                <input type="number" name="quantity"
+                                    class="form-control @error('quantity') is-invalid @enderror" id="quantity"
+                                    placeholder="{{ __('product.Quantity') }}" value="{{ old('quantity', 1) }}"
+                                    min="0" required>
+                                @error('quantity')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -559,10 +594,13 @@
             // Quantity input validation
             const quantityInput = document.getElementById('quantity');
             quantityInput.addEventListener('input', function () {
-                if (this.value < 1) {
-                    this.value = 1;
+                if (this.value < 0) {
+                    this.value = 0;
                 }
             });
+
+            // Category search functionality (optional enhancement)
+            const categorySelect = document.getElementById('category_id');
         });
     </script>
 @endsection

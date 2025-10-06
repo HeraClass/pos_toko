@@ -6,6 +6,7 @@ use App\Http\Requests\ProductStoreRequest;
 use App\Http\Requests\ProductUpdateRequest;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
+use App\Models\Category; 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -22,11 +23,17 @@ class ProductController extends Controller
         if ($request->search) {
             $products = $products->where('name', 'LIKE', "%{$request->search}%");
         }
-        $products = $products->latest()->paginate(10);
+        $products = $products->with('category')->latest()->paginate(10);
+
+        $categories = Category::all(); 
+
         if (request()->wantsJson()) {
             return ProductResource::collection($products);
         }
-        return view('products.index')->with('products', $products);
+        return view('products.index')->with([
+            'products' => $products,
+            'categories' => $categories 
+        ]);
     }
 
     /**
@@ -36,7 +43,8 @@ class ProductController extends Controller
      */
     public function create()
     {
-        return view('products.create');
+        $categories = Category::all();
+        return view('products.create', compact('categories'));
     }
 
     /**
@@ -60,7 +68,8 @@ class ProductController extends Controller
             'barcode' => $request->barcode,
             'price' => $request->price,
             'quantity' => $request->quantity,
-            'status' => $request->status
+            'status' => $request->status,
+            'category_id' => $request->category_id
         ]);
 
         if (!$product) {
@@ -88,7 +97,8 @@ class ProductController extends Controller
      */
     public function edit(Product $product)
     {
-        return view('products.edit')->with('product', $product);
+        $categories = Category::all();
+        return view('products.edit', compact('product', 'categories'));
     }
 
     /**
@@ -106,6 +116,7 @@ class ProductController extends Controller
         $product->price = $request->price;
         $product->quantity = $request->quantity;
         $product->status = $request->status;
+        $product->category_id = $request->category_id;
 
         if ($request->hasFile('image')) {
             // Delete old image

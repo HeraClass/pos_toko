@@ -269,9 +269,9 @@
             <div class="stat-icon">
                <i class="fas fa-users"></i>
             </div>
-            <div class="stat-value">{{$customers_count}}</div>
-            <div class="stat-label">{{ __('dashboard.Customers_Count') }}</div>
-            <a href="{{ route('customers.index') }}" class="stat-link">
+            <div class="stat-value">{{$products_count}}</div>
+            <div class="stat-label">{{ __('dashboard.Products_Count') }}</div>
+            <a href="{{ route('products.index') }}" class="stat-link">
                {{ __('common.More_info') }} <i class="fas fa-arrow-right"></i>
             </a>
          </div>

@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 
 class Product extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'name',
         'description',
@@ -14,12 +17,24 @@ class Product extends Model
         'barcode',
         'price',
         'quantity',
-        'status'
+        'status',
+        'category_id',
     ];
 
-    public function getImageUrl()
+    /**
+     * Relasi ke kategori
+     */
+    public function category()
     {
-        if ($this->image) {
+        return $this->belongsTo(Category::class);
+    }
+
+    /**
+     * Ambil URL gambar produk
+     */
+    public function getImageUrl(): string
+    {
+        if ($this->image && Storage::exists($this->image)) {
             return Storage::url($this->image);
         }
         return asset('images/img-placeholder.jpg');

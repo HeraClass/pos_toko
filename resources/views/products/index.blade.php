@@ -3,7 +3,7 @@
 @section('title', __('product.Product_List'))
 @section('content-header', __('product.Product_List'))
 @section('content-actions')
-    <a href="{{route('products.create')}}" class="btn btn-primary">
+    <a href="{{ route('products.create') }}" class="btn btn-primary">
         <i class="fas fa-plus-circle"></i> {{ __('product.Create_Product') }}
     </a>
     <button class="btn btn-success" id="printBarcodeBtn">
@@ -105,6 +105,26 @@
         .status-inactive {
             background-color: #fed7d7;
             color: #742a2a;
+        }
+
+        .category-badge {
+            padding: 0.25rem 0.5rem;
+            background-color: #e2e8f0;
+            color: #4a5568;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: inline-block;
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .no-category {
+            color: #a0aec0;
+            font-style: italic;
+            font-size: 0.8rem;
         }
 
         .action-buttons {
@@ -241,6 +261,10 @@
             font-size: 0.9rem;
         }
 
+        .fa-plus:before {
+            font-size: 15px;
+        }
+
         .search-input i {
             position: absolute;
             left: 1rem;
@@ -268,7 +292,7 @@
             }
 
             .product-table {
-                min-width: 800px;
+                min-width: 1000px;
             }
 
             .search-filter {
@@ -343,8 +367,15 @@
         }
 
         @keyframes modalFadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .modal-header {
@@ -414,7 +445,7 @@
             font-size: 0.9rem;
         }
 
-         .barcode-preview {
+        .barcode-preview {
             border: 1px solid #e2e8f0;
             border-radius: 8px;
             padding: 1.5rem;
@@ -423,7 +454,7 @@
             text-align: center;
         }
 
-       .barcode-grid {
+        .barcode-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
             gap: 1rem;
@@ -465,82 +496,29 @@
             text-align: center;
             padding: 2rem;
         }
-        .empty-state {
-            text-align: center;
-            padding: 60px 40px;
-        }
-
-        .empty-icon {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 40px;
-            color: #a0aec0;
-        }
-
-        .empty-state p {
-            color: #a0b3c6;
-            font-size: 16px;
-            margin-bottom: 28px;
-            font-weight: 500;
-        }
-
-        .create-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            background: #4A90E2;
-            color: white;
-            padding: 14px 28px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-size: 15px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.25);
-        }
-
-        .create-btn:hover {
-            background: #3d7bc7;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(74, 144, 226, 0.35);
-            color: white;
-            text-decoration: none;
-        }
-
-        .create-btn:active {
-            transform: translateY(0);
-        }
-
-        .plus-circle {
-            width: 28px;
-            height: 28px;
-            background: rgba(255, 255, 255, 0.25);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            font-weight: 600;
-        }
 
         /* Print-specific styles */
         @media print {
             body * {
                 visibility: hidden;
             }
-            .barcode-print-section, .barcode-print-section * {
+
+            .barcode-print-section,
+            .barcode-print-section * {
                 visibility: visible;
             }
+
             .barcode-print-section {
                 position: absolute;
                 left: 0;
                 top: 0;
                 width: 100%;
             }
+
             .no-print {
                 display: none !important;
             }
+
             .barcode-grid {
                 grid-template-columns: repeat(4, 1fr);
             }
@@ -565,6 +543,14 @@
                         <option value="inactive">{{ __('common.Inactive') }}</option>
                     </select>
                 </div>
+                <div class="filter-select">
+                    <select id="categoryFilter" onchange="filterProducts()">
+                        <option value="">{{ __('product.Filter_Category') }}</option>
+                        @foreach ($categories as $category)
+                            <option value="{{ $category->id }}">{{ $category->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
             </div>
         </div>
         <div class="product-table-container">
@@ -577,8 +563,9 @@
                                 <input type="checkbox" id="selectAllCheckbox" class="product-checkbox">
                             </th>
                             <th>{{ __('product.ID') }}</th>
-                            <th>{{ __('product.Name') }}</th>
                             <th>{{ __('product.Image') }}</th>
+                            <th>{{ __('product.Name') }}</th>
+                            <th>{{ __('product.Category') }}</th>
                             <th>{{ __('product.Barcode') }}</th>
                             <th>{{ __('product.Price') }}</th>
                             <th>{{ __('product.Quantity') }}</th>
@@ -590,50 +577,64 @@
                     </thead>
                     <tbody>
                         @foreach ($products as $product)
-                            <tr>
+                            <tr data-category-id="{{ $product->category_id }}">
                                 <td>
-                                    <input type="checkbox" class="product-checkbox product-select" data-id="{{ $product->id }}" data-barcode="{{ $product->barcode }}" data-name="{{ $product->name }}">
+                                    <input type="checkbox" class="product-checkbox product-select"
+                                        data-id="{{ $product->id }}" data-barcode="{{ $product->barcode }}"
+                                        data-name="{{ $product->name }}">
                                 </td>
-                                <td>{{$product->id}}</td>
+                                <td>{{ $product->id }}</td>
                                 <td>
-                                    <span class="product-name" title="{{$product->name}}">{{$product->name}}</span>
-                                </td>
-                                <td>
-                                    <img class="product-img" src="{{ Storage::url($product->image) }}" alt="{{$product->name}}">
-                                </td>
-                                <td>
-                                    <code>{{$product->barcode}}</code>
+                                    <img class="product-img" src="{{ Storage::url($product->image) }}"
+                                        alt="{{ $product->name }}">
                                 </td>
                                 <td>
-                                    <span class="text-price">{{config('settings.currency_symbol')}}
-                                        {{number_format($product->price, 2)}}</span>
+                                    <span class="product-name" title="{{ $product->name }}">{{ $product->name }}</span>
+                                </td>
+                                <td>
+                                    @if ($product->category)
+                                        <span class="category-badge" title="{{ $product->category->name }}"
+                                            data-category-id="{{ $product->category_id }}">
+                                            {{ $product->category->name }}
+                                        </span>
+                                    @else
+                                        <span class="no-category">{{ __('product.No_Category') }}</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <code>{{ $product->barcode }}</code>
+                                </td>
+                                <td>
+                                    <span class="text-price">{{ config('settings.currency_symbol') }}
+                                        {{ number_format($product->price, 2) }}</span>
                                 </td>
                                 <td>
                                     <span
                                         class="text-quantity {{ $product->quantity <= config('settings.warning_quantity') ? 'low-stock' : '' }}">
-                                        {{$product->quantity}}
+                                        {{ $product->quantity }}
                                     </span>
                                 </td>
                                 <td>
-                                    <span class="status-badge {{ $product->status ? 'status-active' : 'status-inactive' }}">
-                                        {{$product->status ? __('common.Active') : __('common.Inactive') }}
+                                    <span
+                                        class="status-badge {{ $product->status ? 'status-active' : 'status-inactive' }}">
+                                        {{ $product->status ? __('common.Active') : __('common.Inactive') }}
                                     </span>
                                 </td>
-                                <td>{{$product->created_at->format('M d, Y')}}</td>
-                                <td>{{$product->updated_at->format('M d, Y')}}</td>
+                                <td>{{ $product->created_at->format('M d, Y') }}</td>
+                                <td>{{ $product->updated_at->format('M d, Y') }}</td>
                                 <td>
                                     <div class="action-buttons">
                                         <a href="{{ route('products.edit', $product) }}" class="btn-action btn-edit"
                                             title="{{ __('product.Edit_Product') }}">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <button class="btn-action btn-delete" data-url="{{route('products.destroy', $product)}}"
+                                        <button class="btn-action btn-delete"
+                                            data-url="{{ route('products.destroy', $product) }}"
                                             title="{{ __('product.Delete_Product') }}">
                                             <i class="fas fa-trash"></i>
                                         </button>
-                                        <button class="btn-action btn-barcode print-single-barcode" 
-                                            data-barcode="{{$product->barcode}}" 
-                                            data-name="{{$product->name}}"
+                                        <button class="btn-action btn-barcode print-single-barcode"
+                                            data-barcode="{{ $product->barcode }}" data-name="{{ $product->name }}"
                                             title="{{ __('product.Print_Barcode') }}">
                                             <i class="fas fa-barcode"></i>
                                         </button>
@@ -641,18 +642,14 @@
                                 </td>
                             </tr>
                         @endforeach
-
-                        @if($products->count() === 0)
+                        @if ($products->count() === 0)
                             <tr>
-                                <td colspan="11">
+                                <td colspan="12">
                                     <div class="empty-state">
-                                        <div class="empty-icon">
-                                            <i class="fas fa-box-open"></i>
-                                        </div>
-                                        <p>{{ __('product.No_Products_Found') }}</p>
-                                        <a href="{{route('products.create')}}" class="create-btn">
-                                            <span class="plus-circle">+</span>
-                                            <span>{{ __('product.Create_First_Product') }}</span>
+                                        <i class="fas fa-box-open fa-2x"></i>
+                                        <p>{{ __('products.No_Products_Found') }}</p>
+                                        <a href="{{ route('products.create') }}" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-plus fa-sm"></i> {{ __('product.Create_Product') }}
                                         </a>
                                     </div>
                                 </td>
@@ -663,7 +660,7 @@
             </div>
 
             <!-- Pagination -->
-            @if($products->count() > 0)
+            @if ($products->count() > 0)
                 <div class="pagination-container">
                     {{ $products->links() }}
                 </div>
@@ -709,12 +706,12 @@
                         </select>
                     </div>
                 </div>
-                
+
                 <div class="select-all-container">
                     <input type="checkbox" id="selectAllModal">
                     <label for="selectAllModal">{{ __('product.Select_All_Products') }}</label>
                 </div>
-                
+
                 <div class="barcode-preview">
                     <h4>{{ __('product.Preview') }}</h4>
                     <div id="barcodePreview" class="barcode-grid">
@@ -739,38 +736,39 @@
     <script src="{{ asset('plugins/sweetalert2/sweetalert2.min.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             // SweetAlert delete confirmation
             document.querySelectorAll('.btn-delete').forEach(button => {
-                button.addEventListener('click', function () {
+                button.addEventListener('click', function() {
                     const url = this.dataset.url;
-                    const productName = this.closest('tr').querySelector('.product-name').textContent;
+                    const productName = this.closest('tr').querySelector('.product-name')
+                        .textContent;
 
                     Swal.fire({
-                        title: '{{ __("product.sure") }}',
-                        text: '{{ __("product.really_delete") }}: ' + productName + '?',
+                        title: '{{ __('product.sure') }}',
+                        text: '{{ __('product.really_delete') }}: ' + productName + '?',
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonColor: '#4361ee',
                         cancelButtonColor: '#6c757d',
-                        confirmButtonText: '{{ __("product.yes_delete") }}',
-                        cancelButtonText: '{{ __("product.No") }}',
+                        confirmButtonText: '{{ __('product.yes_delete') }}',
+                        cancelButtonText: '{{ __('product.No') }}',
                         reverseButtons: true
                     }).then((result) => {
                         if (result.isConfirmed) {
                             fetch(url, {
-                                method: 'DELETE',
-                                headers: {
-                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                    'Content-Type': 'application/json'
-                                }
-                            })
+                                    method: 'DELETE',
+                                    headers: {
+                                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                        'Content-Type': 'application/json'
+                                    }
+                                })
                                 .then(response => response.json())
                                 .then(data => {
                                     if (data.success) {
                                         Swal.fire({
-                                            title: '{{ __("product.Deleted") }}',
-                                            text: '{{ __("product.Deleted_Message") }}',
+                                            title: '{{ __('product.Deleted') }}',
+                                            text: '{{ __('product.Deleted_Message') }}',
                                             icon: 'success',
                                             confirmButtonColor: '#4361ee'
                                         });
@@ -783,8 +781,8 @@
                                 })
                                 .catch(error => {
                                     Swal.fire({
-                                        title: '{{ __("product.Error") }}',
-                                        text: '{{ __("product.Delete_Error") }}',
+                                        title: '{{ __('product.Error') }}',
+                                        text: '{{ __('product.Delete_Error') }}',
                                         icon: 'error',
                                         confirmButtonColor: '#4361ee'
                                     });
@@ -821,30 +819,30 @@
             const printBarcodesBtn = document.getElementById('printBarcodes');
             const selectAllCheckbox = document.getElementById('selectAllCheckbox');
             const selectAllModal = document.getElementById('selectAllModal');
-            
+
             // Open modal when print button is clicked
             printBtn.addEventListener('click', function() {
                 modal.style.display = 'block';
                 updateBarcodePreview();
             });
-            
+
             // Close modal when X is clicked
             closeBtn.addEventListener('click', function() {
                 modal.style.display = 'none';
             });
-            
+
             // Close modal when cancel button is clicked
             cancelBtn.addEventListener('click', function() {
                 modal.style.display = 'none';
             });
-            
+
             // Close modal when clicking outside the modal
             window.addEventListener('click', function(event) {
                 if (event.target === modal) {
                     modal.style.display = 'none';
                 }
             });
-            
+
             // Select all products in the table
             selectAllCheckbox.addEventListener('change', function() {
                 const checkboxes = document.querySelectorAll('.product-select');
@@ -853,7 +851,7 @@
                 });
                 updateBarcodePreview();
             });
-            
+
             // Select all products in the modal
             selectAllModal.addEventListener('change', function() {
                 const checkboxes = document.querySelectorAll('.product-select');
@@ -863,121 +861,132 @@
                 selectAllCheckbox.checked = selectAllModal.checked;
                 updateBarcodePreview();
             });
-            
+
             // Update barcode preview when options change
             document.getElementById('barcodeType').addEventListener('change', updateBarcodePreview);
             document.getElementById('barcodeSize').addEventListener('change', updateBarcodePreview);
             document.getElementById('barcodeCount').addEventListener('change', updateBarcodePreview);
             document.getElementById('showProductName').addEventListener('change', updateBarcodePreview);
-            
+
             // Update barcode preview when product selection changes
             document.querySelectorAll('.product-select').forEach(checkbox => {
                 checkbox.addEventListener('change', updateBarcodePreview);
             });
-            
+
             // Print single barcode
             document.querySelectorAll('.print-single-barcode').forEach(button => {
                 button.addEventListener('click', function() {
                     const barcode = this.dataset.barcode;
                     const name = this.dataset.name;
-                    
+
                     // Select only this product
                     document.querySelectorAll('.product-select').forEach(checkbox => {
                         checkbox.checked = false;
                     });
-                    
+
                     // Find and check the checkbox for this product
-                    const productCheckbox = document.querySelector(`.product-select[data-barcode="${barcode}"]`);
+                    const productCheckbox = document.querySelector(
+                        `.product-select[data-barcode="${barcode}"]`);
                     if (productCheckbox) {
                         productCheckbox.checked = true;
                         selectAllCheckbox.checked = false;
                         selectAllModal.checked = false;
                     }
-                    
+
                     // Open modal and generate preview
                     modal.style.display = 'block';
                     updateBarcodePreview();
                 });
             });
-            
+
             // Print barcodes button
             printBarcodesBtn.addEventListener('click', function() {
                 const selectedProducts = getSelectedProducts();
-                
+
                 if (selectedProducts.length === 0) {
                     Swal.fire({
-                        title: '{{ __("product.No_Products_Selected") }}',
-                        text: '{{ __("product.Please_Select_Products_To_Print") }}',
+                        title: '{{ __('product.No_Products_Selected') }}',
+                        text: '{{ __('product.Please_Select_Products_To_Print') }}',
                         icon: 'warning',
                         confirmButtonColor: '#4361ee'
                     });
                     return;
                 }
-                
+
                 // Generate barcodes for printing
                 generateBarcodesForPrinting();
-                
+
                 // Wait a moment for DOM updates, then print
                 setTimeout(() => {
                     window.print();
                 }, 500);
             });
-            
+
             // Function to update barcode preview
             function updateBarcodePreview() {
                 const barcodePreview = document.getElementById('barcodePreview');
                 const selectedProducts = getSelectedProducts();
-                
+
                 if (selectedProducts.length === 0) {
-                    barcodePreview.innerHTML = '<p class="text-muted">{{ __("product.No_Products_Selected") }}</p>';
+                    barcodePreview.innerHTML =
+                    '<p class="text-muted">{{ __('product.No_Products_Selected') }}</p>';
                     return;
                 }
-                
+
                 // Generate preview barcode
                 generateBarcodePreview(selectedProducts);
             }
-            
+
             // Function generate preview
             function generateBarcodePreview(products) {
                 const barcodePreview = document.getElementById('barcodePreview');
                 barcodePreview.innerHTML = '';
-                
+
                 const barcodeType = document.getElementById('barcodeType').value;
                 const barcodeSize = document.getElementById('barcodeSize').value;
                 const copies = parseInt(document.getElementById('barcodeCount').value);
                 const showName = document.getElementById('showProductName').value === 'yes';
-                
+
                 const sizeMap = {
-                    small: { width: 1, height: 50 },
-                    medium: { width: 2, height: 100 },
-                    large: { width: 3, height: 150 }
+                    small: {
+                        width: 1,
+                        height: 50
+                    },
+                    medium: {
+                        width: 2,
+                        height: 100
+                    },
+                    large: {
+                        width: 3,
+                        height: 150
+                    }
                 };
-                
+
                 const size = sizeMap[barcodeSize];
-                
+
                 products.forEach(product => {
                     for (let i = 0; i < copies; i++) {
                         const barcodeItem = document.createElement('div');
                         barcodeItem.className = 'barcode-item';
-                        
+
                         const barcodeCanvas = document.createElement('canvas');
-                        
+
                         barcodeItem.appendChild(barcodeCanvas);
-                        
+
                         if (showName) {
                             const nameElement = document.createElement('div');
                             nameElement.className = 'barcode-text';
                             nameElement.textContent = product.name;
                             barcodeItem.appendChild(nameElement);
                         }
-                        
+
                         const barcodeText = document.createElement('div');
                         barcodeText.className = 'barcode-text';
                         barcodeText.textContent = product.barcode;
                         barcodeItem.appendChild(barcodeText);
-                        
+
                         barcodePreview.appendChild(barcodeItem);
-                        
+
                         // Generate barcode
                         try {
                             JsBarcode(barcodeCanvas, product.barcode, {
@@ -990,59 +999,68 @@
                             console.error('Barcode generation error:', error);
                             barcodeCanvas.parentNode.removeChild(barcodeCanvas);
                             const errorText = document.createElement('div');
-                            errorText.textContent = '{{ __("product.Barcode_Error") }}';
+                            errorText.textContent = '{{ __('product.Barcode_Error') }}';
                             barcodeItem.appendChild(errorText);
                         }
                     }
                 });
             }
-            
+
             // Function untuk print
             function generateBarcodesForPrinting() {
                 const printSection = document.getElementById('barcodePrintSection');
                 printSection.innerHTML = '';
-                
+
                 const selectedProducts = getSelectedProducts();
                 const barcodeType = document.getElementById('barcodeType').value;
                 const barcodeSize = document.getElementById('barcodeSize').value;
                 const copies = parseInt(document.getElementById('barcodeCount').value);
                 const showName = document.getElementById('showProductName').value === 'yes';
-                
+
                 // Size untuk print (lebih besar)
                 const sizeMap = {
-                    small: { width: 1.5, height: 60 },
-                    medium: { width: 2.5, height: 120 },
-                    large: { width: 3.5, height: 180 }
+                    small: {
+                        width: 1.5,
+                        height: 60
+                    },
+                    medium: {
+                        width: 2.5,
+                        height: 120
+                    },
+                    large: {
+                        width: 3.5,
+                        height: 180
+                    }
                 };
-                
+
                 const size = sizeMap[barcodeSize];
-                
+
                 const barcodeGrid = document.createElement('div');
                 barcodeGrid.className = 'barcode-grid';
-                
+
                 selectedProducts.forEach(product => {
                     for (let i = 0; i < copies; i++) {
                         const barcodeItem = document.createElement('div');
                         barcodeItem.className = 'barcode-item';
-                        
+
                         const barcodeCanvas = document.createElement('canvas');
-                        
+
                         barcodeItem.appendChild(barcodeCanvas);
-                        
+
                         if (showName) {
                             const nameElement = document.createElement('div');
                             nameElement.className = 'barcode-text';
                             nameElement.textContent = product.name;
                             barcodeItem.appendChild(nameElement);
                         }
-                        
+
                         const barcodeText = document.createElement('div');
                         barcodeText.className = 'barcode-text';
                         barcodeText.textContent = product.barcode;
                         barcodeItem.appendChild(barcodeText);
-                        
+
                         barcodeGrid.appendChild(barcodeItem);
-                        
+
                         // Generate barcode untuk print
                         try {
                             JsBarcode(barcodeCanvas, product.barcode, {
@@ -1055,16 +1073,16 @@
                             console.error('Barcode generation error:', error);
                             barcodeCanvas.parentNode.removeChild(barcodeCanvas);
                             const errorText = document.createElement('div');
-                            errorText.textContent = '{{ __("product.Barcode_Error") }}';
+                            errorText.textContent = '{{ __('product.Barcode_Error') }}';
                             barcodeItem.appendChild(errorText);
                         }
                     }
                 });
-                
+
                 printSection.appendChild(barcodeGrid);
                 printSection.style.display = 'block';
             }
-            
+
             // Function to get selected products
             function getSelectedProducts() {
                 const selectedProducts = [];
@@ -1077,7 +1095,7 @@
                 });
                 return selectedProducts;
             }
-            
+
             // After print event, hide the print section
             window.addEventListener('afterprint', function() {
                 document.getElementById('barcodePrintSection').style.display = 'none';
@@ -1087,14 +1105,17 @@
         function filterProducts() {
             const searchText = document.getElementById('searchInput').value.toLowerCase();
             const statusFilter = document.getElementById('statusFilter').value;
+            const categoryFilter = document.getElementById('categoryFilter').value;
 
             document.querySelectorAll('.product-table tbody tr').forEach(row => {
                 if (row.querySelector('.empty-state')) return;
 
                 const name = row.querySelector('.product-name').textContent.toLowerCase();
 
-                // Cara yang lebih reliable untuk mendapatkan status
-                // Cek apakah badge memiliki kelas status-active
+                // Get category ID from data attribute
+                const categoryId = row.getAttribute('data-category-id') || '';
+
+                // Get status
                 const statusBadge = row.querySelector('.status-badge');
                 let statusValue = '';
 
@@ -1106,8 +1127,9 @@
 
                 const nameMatch = name.includes(searchText);
                 const statusMatch = statusFilter === '' || statusValue === statusFilter;
+                const categoryMatch = categoryFilter === '' || categoryId === categoryFilter;
 
-                row.style.display = (nameMatch && statusMatch) ? '' : 'none';
+                row.style.display = (nameMatch && statusMatch && categoryMatch) ? '' : 'none';
             });
         }
     </script>

@@ -28,6 +28,7 @@ class HomeController extends Controller
     {
         $orders = Order::with(['items', 'payments'])->get();
         $customers_count = Customer::count();
+        $products_count = Product::count();
 
         $low_stock_products = Product::where('quantity', '<', 10)->get();
 
@@ -137,6 +138,7 @@ class HomeController extends Controller
                 return $i->receivedAmount() > $i->total() ? $i->total() : $i->receivedAmount();
             })->sum(),
             'customers_count' => $customers_count,
+            'products_count' => $products_count,
             'low_stock_products' => $low_stock_products,
             'best_selling_products' => $bestSellingProducts,
             'current_month_products' => $currentMonthBestSelling,

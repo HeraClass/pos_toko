@@ -24,6 +24,7 @@ return [
     'Income' => 'Income',
     'Income_Today' => 'Income Today',
     'Customers_Count' => 'Customers Count',
+    'Products_Count' => 'Products Count',
     'Orders_Count' => 'Orders Count',
     'Low_Stock_Product' => 'Low Stock Product',
     'No_Low_Stock_Products' => 'No Low Stock Products Available',

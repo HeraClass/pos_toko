@@ -3,14 +3,13 @@
 @section('title', __('Supplier List'))
 @section('content-header', __('Supplier List'))
 @section('content-actions')
-<div style="display: flex; align-items: center; gap: 1rem;">
+    <div style="display: flex; align-items: center; gap: 1rem;">
         <div class="search-input" style="min-width: 250px;">
             <i class="fas fa-search"></i>
-            <input type="text" id="searchInput" placeholder="{{ __('supplier.Search_Suppliers') }}"
-                onkeyup="filterSuppliers()">
+            <input type="text" id="searchInput" placeholder="{{ __('Search Suppliers') }}" onkeyup="filterSuppliers()">
         </div>
         <a href="{{route('suppliers.create')}}" class="btn btn-primary">
-            <i class="fas fa-user-plus"></i> {{ __('supplier.Add_Supplier') }}
+            <i class="fas fa-user-plus"></i> {{ __('Add Supplier') }}
         </a>
     </div>
 @endsection
@@ -279,12 +278,6 @@
                 width: 32px;
                 height: 32px;
             }
-
-            @section('content-actions')
-                <div style="display: flex; flex-direction: column; gap: 1rem; width: 100%;"><div class="search-input"><i class="fas fa-search"></i><input type="text" id="searchInput" placeholder="{{ __('suppliers.Search_Suppliers') }}"
-                onkeyup="filtersuppliers()"></div><a href="{{route('suppliers.create')}}" class="btn btn-primary" style="align-self: flex-start;"><i class="fas fa-user-plus"></i>
-                {{ __('suppliers.Add_Suppliers') }}
-            </a></div>@endsection
         }
 
         .table-responsive {
@@ -305,67 +298,11 @@
         }
 
         .btn i {
-            font-size: 14px;   /* kecilin ukuran icon */
-            margin-right: 6px; /* kasih jarak biar gak nempel teks */
+            font-size: 14px;
+            /* kecilin ukuran icon */
+            margin-right: 6px;
+            /* kasih jarak biar gak nempel teks */
             padding: auto
-        }
-        .empty-state {
-            text-align: center;
-            padding: 60px 40px;
-        }
-
-        .empty-icon {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 40px;
-            color: #a0aec0;
-        }
-
-        .empty-state p {
-            color: #a0b3c6;
-            font-size: 16px;
-            margin-bottom: 28px;
-            font-weight: 500;
-        }
-
-        .create-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            background: #4A90E2;
-            color: white;
-            padding: 14px 28px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-size: 15px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.25);
-        }
-
-        .create-btn:hover {
-            background: #3d7bc7;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(74, 144, 226, 0.35);
-            color: white;
-            text-decoration: none;
-        }
-
-        .create-btn:active {
-            transform: translateY(0);
-        }
-
-        .plus-circle {
-            width: 28px;
-            height: 28px;
-            background: rgba(255, 255, 255, 0.25);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            font-weight: 600;
         }
     </style>
 @endsection
@@ -432,20 +369,17 @@
                             @endforeach
 
                             @if($suppliers->count() === 0)
-                            <tr>
-                                <td colspan="11">
-                                    <div class="empty-state">
-                                        <div class="empty-icon">
-                                            <i class="fas fa-users"></i>
+                                <tr>
+                                    <td colspan="8">
+                                        <div class="empty-state">
+                                            <i class="fas fa-users fa-2x"></i>
+                                            <p>{{ __('supplier.No_suppliers_Found') }}</p>
+                                            <a href="{{route('suppliers.create')}}" class="btn btn-primary">
+                                                <i class="fas fa-user-plus fa-sm"></i> {{ __('supplier.Add_supplier') }}
+                                            </a>
                                         </div>
-                                        <p>{{ __('supplier.No_Suppliers_Found') }}</p>
-                                        <a href="{{route('suppliers.create')}}" class="create-btn">
-                                            <span class="plus-circle">+</span>
-                                            <span>{{ __('supplier.No_Suppliers_Found') }}</span>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
+                                    </td>
+                                </tr>
                             @endif
                         </tbody>
                     </table>
@@ -540,7 +474,7 @@
             }
         });
 
-        function filtersuppliers() {
+        function filterSuppliers() { // Nama fungsi diperbaiki
             const searchText = document.getElementById('searchInput').value.toLowerCase();
 
             document.querySelectorAll('.suppliers-table tbody tr').forEach(row => {

@@ -16,6 +16,12 @@
                 </a>
             </li>
             <li class="nav-item">
+                <a href="{{ route('categories.index') }}" class="nav-link {{ activeSegment('categories') }}">
+                    <span class="nav-icon"><i class="fas fa-box"></i></span>
+                    <span class="nav-text">{{ __('category.title') }}</span>
+                </a>
+            </li>
+            <li class="nav-item">
                 <a href="{{ route('products.index') }}" class="nav-link {{ activeSegment('products') }}">
                     <span class="nav-icon"><i class="fas fa-box"></i></span>
                     <span class="nav-text">{{ __('product.title') }}</span>

@@ -48,8 +48,8 @@ return [
     'really_delete' => 'Apakah Anda benar-benar ingin menghapus pelanggan ini?',
     'yes_delete' => 'Ya, Hapus!',
     'deleted' => 'Pemasok dihapus',
-    'deleted_message' => 'Supplier Berhasil Dihapus!',
+    'deleted_message' => 'Supplier sudah dihapus',
     'No' => 'Tidak',
     'Actions' => 'Aksi',
-    'No_Suppliers_Found' => "Pemasok Tidak ditemukan"
+    'No_Suppliers_Found' => "Tidak ditemukan"
 ];

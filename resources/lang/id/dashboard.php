@@ -24,6 +24,7 @@ return [
     'Income' => 'Pendapatan',
     'Income_Today' => 'Pendapatan Hari Ini',
     'Customers_Count' => 'Jumlah Pelanggan',
+    'Products_Count' => 'Jumlah Produk',
     'Orders_Count' => 'Jumlah Pesanan',
     'Low_Stock_Product' => 'Produk Stok Rendah',
     'No_Low_Stock_Products' => 'Tidak Ada Produk Stok Rendah Tersedia',

@@ -38,6 +38,4 @@ return [
     'Warning_Preview' => 'Products with quantity below',
     'units' => 'units will be marked as low stock',
     'Updating' => 'Updating',
-    'App_Name' => 'Application Name',
-    'Currency_Symbol' => 'Currency Symbol',
 ];

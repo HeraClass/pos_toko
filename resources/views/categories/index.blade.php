@@ -1,16 +1,16 @@
 @extends('layouts.admin')
 
-@section('title', __('customer.Customer_List'))
-@section('content-header', __('customer.Customer_List'))
+@section('title', __('category.Category_List'))
+@section('content-header', __('category.Category_List'))
 @section('content-actions')
     <div style="display: flex; align-items: center; gap: 1rem;">
         <div class="search-input" style="min-width: 250px;">
             <i class="fas fa-search"></i>
-            <input type="text" id="searchInput" placeholder="{{ __('customer.Search_Customers') }}"
-                onkeyup="filterCustomers()">
+            <input type="text" id="searchInput" placeholder="{{ __('category.Search_Categories') }}"
+                onkeyup="filterCategories()">
         </div>
-        <a href="{{route('customers.create')}}" class="btn btn-primary">
-            <i class="fas fa-user-plus"></i> {{ __('customer.Add_Customer') }}
+        <a href="{{route('categories.create')}}" class="btn btn-primary">
+            <i class="fas fa-user-plus"></i> {{ __('category.Add_Category') }}
         </a>
     </div>
 @endsection
@@ -18,7 +18,7 @@
 @section('css')
     <link rel="stylesheet" href="{{ asset('plugins/sweetalert2/sweetalert2.min.css') }}">
     <style>
-        .customers-container {
+        .categories-container {
             padding: 0.5rem;
         }
 
@@ -49,12 +49,12 @@
             padding: 0;
         }
 
-        .customers-table {
+        .categories-table {
             width: 100%;
             border-collapse: collapse;
         }
 
-        .customers-table th {
+        .categories-table th {
             background-color: #f7fafc;
             padding: 1rem 1.25rem;
             text-align: left;
@@ -66,18 +66,18 @@
             letter-spacing: 0.5px;
         }
 
-        .customers-table td {
+        .categories-table td {
             padding: 1rem 1.25rem;
             border-bottom: 1px solid #e2e8f0;
             vertical-align: middle;
             color: #4a5568;
         }
 
-        .customers-table tr:last-child td {
+        .categories-table tr:last-child td {
             border-bottom: none;
         }
 
-        .customers-table tr:hover {
+        .categories-table tr:hover {
             background-color: #f8f9fa;
         }
 
@@ -90,7 +90,7 @@
             transition: transform 0.3s ease;
         }
 
-        .customers-table tr:hover .avatar-container {
+        .categories-table tr:hover .avatar-container {
             transform: scale(1.05);
         }
 
@@ -100,22 +100,22 @@
             object-fit: cover;
         }
 
-        .customer-name {
+        .categorie-name {
             font-weight: 500;
             color: #2d3748;
         }
 
-        .customer-email {
+        .category-email {
             color: #4a5568;
             font-size: 0.9rem;
         }
 
-        .customer-phone {
+        .category-phone {
             font-weight: 500;
             color: #2d3748;
         }
 
-        .customer-address {
+        .category-address {
             color: #4a5568;
             font-size: 0.9rem;
             max-width: 200px;
@@ -258,11 +258,11 @@
         }
 
         @media (max-width: 768px) {
-            .customers-table-container {
+            .categories-table-container {
                 margin: 0 -1rem;
             }
 
-            .customers-table {
+            .categories-table {
                 min-width: 800px;
             }
 
@@ -281,9 +281,9 @@
             }
 
             @section('content-actions')
-                <div style="display: flex; flex-direction: column; gap: 1rem; width: 100%;"><div class="search-input"><i class="fas fa-search"></i><input type="text" id="searchInput" placeholder="{{ __('customer.Search_Customers') }}"
-                onkeyup="filterCustomers()"></div><a href="{{route('customers.create')}}" class="btn btn-primary" style="align-self: flex-start;"><i class="fas fa-user-plus"></i>
-                {{ __('customer.Add_Customer') }}
+                <div style="display: flex; flex-direction: column; gap: 1rem; width: 100%;"><div class="search-input"><i class="fas fa-search"></i><input type="text" id="searchInput" placeholder="{{ __('category.Search_Categories') }}"
+                onkeyup="filtercategories()"></div><a href="{{route('categories.create')}}" class="btn btn-primary" style="align-self: flex-start;"><i class="fas fa-user-plus"></i>
+                {{ __('category.Add_Category') }}
             </a></div>@endsection
         }
 
@@ -313,59 +313,49 @@
 @endsection
 
 @section('content')
-    <div class="customers-container">
+    <div class="categories-container">
         <div class="card">
             <div class="card-body">
-                <!-- Customers Table -->
+                <!-- Categories Table -->
                 <div class="table-responsive">
-                    <table class="customers-table">
+                    <table class="categories-table">
                         <thead>
                             <tr>
-                                <th>{{ __('customer.ID') }}</th>
-                                <th>{{ __('customer.Avatar') }}</th>
-                                <th>{{ __('customer.Name') }}</th>
-                                <th>{{ __('customer.Email') }}</th>
-                                <th>{{ __('customer.Phone') }}</th>
-                                <th>{{ __('customer.Address') }}</th>
+                                <th>{{ __('category.ID') }}</th>
+                                <th>{{ __('category.Name') }}</th>
+                                <th>{{ __('category.Description') }}</th>
                                 <th>{{ __('common.Created_At') }}</th>
-                                <th>{{ __('customer.Actions') }}</th>
+                                <th>{{ __('category.Actions') }}</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($customers as $customer)
+                            @foreach ($categories as $category)
                                 <tr>
-                                    <td>{{$customer->id}}</td>
+                                    <td>{{$category->id}}</td>
                                     <td>
-                                        <div class="avatar-container">
-                                            <img class="avatar-img" src="{{$customer->getAvatarUrl()}}"
-                                                alt="{{$customer->first_name}} {{$customer->last_name}}">
+                                        <div class="category-name">{{$category->name}}</div>
+                                    </td>
+                                    <td>
+                                        <div class="category-description">
+                                            @if(!empty(trim($category->description)))
+                                                {{$category->description}}
+                                            @else
+                                                <span style="color: #a0aec0; font-style: italic;">{{ __('category.No_Description') }}</span>
+                                            @endif
                                         </div>
                                     </td>
                                     <td>
-                                        <div class="customer-name">{{$customer->first_name}} {{$customer->last_name}}</div>
-                                    </td>
-                                    <td>
-                                        <div class="customer-email">{{$customer->email}}</div>
-                                    </td>
-                                    <td>
-                                        <div class="customer-phone">{{$customer->phone}}</div>
-                                    </td>
-                                    <td>
-                                        <div class="customer-address" title="{{$customer->address}}">{{$customer->address}}
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="created-at">{{$customer->created_at->format('M d, Y')}}</div>
+                                        <div class="created-at">{{$category->created_at->format('M d, Y')}}</div>
                                     </td>
                                     <td>
                                         <div class="action-buttons">
-                                            <a href="{{ route('customers.edit', $customer) }}" class="btn-action btn-edit"
-                                                title="{{ __('customer.Edit_Customer') }}">
+                                            <a href="{{ route('categories.edit', $category) }}" class="btn-action btn-edit"
+                                                title="{{ __('category.Edit_Category') }}">
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                             <button class="btn-action btn-delete"
-                                                data-url="{{route('customers.destroy', $customer)}}"
-                                                title="{{ __('customer.Delete_Customer') }}">
+                                                data-url="{{route('categories.destroy', $category)}}"
+                                                title="{{ __('category.Delete_Category') }}">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </div>
@@ -373,14 +363,14 @@
                                 </tr>
                             @endforeach
 
-                            @if($customers->count() === 0)
+                            @if($categories->count() === 0)
                                 <tr>
                                     <td colspan="8">
                                         <div class="empty-state">
                                             <i class="fas fa-users fa-2x"></i>
-                                            <p>{{ __('customer.No_Customers_Found') }}</p>
-                                            <a href="{{route('customers.create')}}" class="btn btn-primary">
-                                                <i class="fas fa-user-plus fa-sm"></i> {{ __('customer.Create_Customer') }}
+                                            <p>{{ __('category.No_Categories_Found') }}</p>
+                                            <a href="{{route('categories.create')}}" class="btn btn-primary">
+                                                <i class="fas fa-user-plus fa-sm"></i> {{ __('category.Add_Category') }}
                                             </a>
                                         </div>
                                     </td>
@@ -391,9 +381,9 @@
                 </div>
 
                 <!-- Pagination -->
-                @if($customers->count() > 0)
+                @if($categories->count() > 0)
                     <div class="pagination-container">
-                        {{ $customers->links() }}
+                        {{ $categories->links() }}
                     </div>
                 @endif
             </div>
@@ -409,17 +399,17 @@
             document.querySelectorAll('.btn-delete').forEach(button => {
                 button.addEventListener('click', function () {
                     const url = this.dataset.url;
-                    const customerName = this.closest('tr').querySelector('.customer-name').textContent;
+                    const categoryName = this.closest('tr').querySelector('.category-name').textContent;
 
                     Swal.fire({
-                        title: '{{ __("customer.sure") }}',
-                        text: '{{ __("customer.really_delete") }}: ' + customerName + '?',
+                        title: '{{ __("category.sure") }}',
+                        text: '{{ __("category.really_delete") }}: ' + categoryName + '?',
                         icon: 'warning',
                         showCancelButton: true,
                         confirmButtonColor: '#4361ee',
                         cancelButtonColor: '#6c757d',
-                        confirmButtonText: '{{ __("customer.yes_delete") }}',
-                        cancelButtonText: '{{ __("customer.No") }}',
+                        confirmButtonText: '{{ __("category.yes_delete") }}',
+                        cancelButtonText: '{{ __("category.No") }}',
                         reverseButtons: true
                     }).then((result) => {
                         if (result.isConfirmed) {
@@ -434,8 +424,8 @@
                                 .then(data => {
                                     if (data.success) {
                                         Swal.fire({
-                                            title: '{{ __("customer.Deleted") }}',
-                                            text: '{{ __("customer.Deleted_Message") }}',
+                                            title: '{{ __("category.Deleted") }}',
+                                            text: '{{ __("category.Deleted_Message") }}',
                                             icon: 'success',
                                             confirmButtonColor: '#4361ee'
                                         });
@@ -448,8 +438,8 @@
                                 })
                                 .catch(error => {
                                     Swal.fire({
-                                        title: '{{ __("customer.Error") }}',
-                                        text: '{{ __("customer.Delete_Error") }}',
+                                        title: '{{ __("category.Error") }}',
+                                        text: '{{ __("category.Delete_Error") }}',
                                         icon: 'error',
                                         confirmButtonColor: '#4361ee'
                                     });
@@ -479,23 +469,19 @@
             }
         });
 
-        function filterCustomers() {
+        function filterCategories() {
             const searchText = document.getElementById('searchInput').value.toLowerCase();
 
-            document.querySelectorAll('.customers-table tbody tr').forEach(row => {
+            document.querySelectorAll('.categories-table tbody tr').forEach(row => {
                 if (row.querySelector('.empty-state')) return;
 
-                const name = row.querySelector('.customer-name').textContent.toLowerCase();
-                const email = row.querySelector('.customer-email').textContent.toLowerCase();
-                const phone = row.querySelector('.customer-phone').textContent.toLowerCase();
-                const address = row.querySelector('.customer-address').textContent.toLowerCase();
+                const name = row.querySelector('.category-name').textContent.toLowerCase();
+                const description = row.querySelector('.category-description').textContent.toLowerCase();
 
                 const nameMatch = name.includes(searchText);
-                const emailMatch = email.includes(searchText);
-                const phoneMatch = phone.includes(searchText);
-                const addressMatch = address.includes(searchText);
+                const descriptionMatch = description.includes(searchText);
 
-                row.style.display = (nameMatch || emailMatch || phoneMatch || addressMatch) ? '' : 'none';
+                row.style.display = (nameMatch || descriptionMatch) ? '' : 'none';
             });
         }
     </script>
