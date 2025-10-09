@@ -360,7 +360,7 @@ class Cart extends Component {
                                     onChange={this.setCustomerId}
                                     value={this.state.customer_id}
                                 >
-                                    <option value="">{translations["general_customer"] || "General Customer"}</option>
+                                    <option value="">{translations["walk_in_customer"] || "WALK-IN Customer"}</option>
                                     {customers.map((cus) => (
                                         <option key={cus.id} value={cus.id}>
                                             {`${cus.first_name} ${cus.last_name}`}

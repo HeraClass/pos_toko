@@ -29,6 +29,7 @@ return [
     'First_Name' => 'Nama Depan',
     'Last_Name' => 'Nama Belakang',
     'Name' => 'Nama',
+    'Product' => 'Produk',
     'Email' => 'Email',
     'Phone' => 'Telepon',
     'Address' => 'Alamat',
@@ -51,5 +52,11 @@ return [
     'deleted_message' => 'Supplier sudah dihapus',
     'No' => 'Tidak',
     'Actions' => 'Aksi',
-    'No_Suppliers_Found' => "Tidak ditemukan"
+    'No_Suppliers_Found' => "Tidak ditemukan",
+    'Select_products' => 'Pilih Produk',
+    'Products_Hint' => 'Pilih produk yang disuplai oleh supplier ini',
+    'Hold_Ctrl' => 'Tahan Ctrl/Cmd untuk memilih beberapa produk',
+    'Search_products' => 'Cari produk...',
+    'No_products_found' => 'Tidak ada produk yang ditemukan',
+    'Change_file' => 'Ubah File',
 ];

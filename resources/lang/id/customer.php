@@ -53,5 +53,7 @@ return [
     'yes_delete' => 'Ya, hapus!',
     'No' => 'Tidak',
     'Actions' => 'Aksi',
-    'No_Customers_Found' => 'Tidak ditemukan'
+    'No_Customers_Found' => 'Tidak ditemukan',
+    'Deleted' => 'Berhasil dihapus',
+    'Deleted_Message' => 'Pelanggan telah dihapus'
 ];

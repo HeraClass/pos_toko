@@ -12,22 +12,57 @@ class OrderController extends Controller
     public function index(Request $request)
     {
         $orders = new Order();
+
+        // Filter tanggal
         if ($request->start_date) {
             $orders = $orders->where('created_at', '>=', $request->start_date);
         }
         if ($request->end_date) {
             $orders = $orders->where('created_at', '<=', $request->end_date . ' 23:59:59');
         }
-        $orders = $orders->with(['items.product', 'payments', 'customer'])->latest()->paginate(10);
 
-        $total = $orders->map(function ($i) {
+        // Filter customer type
+        if ($request->customer_type == 'walk_in') {
+            $orders = $orders->whereNull('customer_id');
+        } elseif ($request->customer_type == 'registered') {
+            $orders = $orders->whereNotNull('customer_id');
+        }
+
+        $orders = $orders->with(['items.product', 'payments', 'customer'])->latest();
+
+        // Filter status
+        if ($request->status) {
+            $orders = $orders->get()->filter(function ($order) use ($request) {
+                if ($request->status == 'not_paid') {
+                    return $order->receivedAmount() == 0;
+                } elseif ($request->status == 'partial') {
+                    return $order->receivedAmount() > 0 && $order->receivedAmount() < $order->total();
+                } elseif ($request->status == 'paid') {
+                    return $order->receivedAmount() == $order->total();
+                } elseif ($request->status == 'change') {
+                    return $order->receivedAmount() > $order->total();
+                }
+                return true;
+            });
+
+            // Convert back to paginator
+            $orders = new \Illuminate\Pagination\LengthAwarePaginator(
+                $orders->forPage(\Illuminate\Pagination\Paginator::resolveCurrentPage(), 10),
+                $orders->count(),
+                10,
+                \Illuminate\Pagination\Paginator::resolveCurrentPage(),
+                ['path' => \Illuminate\Pagination\Paginator::resolveCurrentPath()]
+            );
+        } else {
+            $orders = $orders->paginate(10);
+        }
+
+        $total = $orders->sum(function ($i) {
             return $i->total();
-        })->sum();
-        $receivedAmount = $orders->map(function ($i) {
+        });
+        $receivedAmount = $orders->sum(function ($i) {
             return $i->receivedAmount();
-        })->sum();
-
-        // return response()->json($orders);
+        });
 
         return view('orders.index', compact('orders', 'total', 'receivedAmount'));
     }

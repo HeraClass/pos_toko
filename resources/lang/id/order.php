@@ -51,5 +51,10 @@ return [
     'Total_Summary' => 'Total',
     'start_date' => 'Mulai Tanggal',
     'end_date' => 'Sampai Tanggal',
-
+    'Customer_Type' => 'Tipe Pelanggan',
+    'All_Customers' => 'Semua Pelanggan',
+    'Walk_In_Customer' => 'Pelanggan WALK-IN',
+    'Registered_Customer' => 'Pelanggan Terdaftar',
+    'All_Status' => 'Semua Status',
+    'Reset_Filter' => 'Reset Filter',
 ];

@@ -51,5 +51,10 @@ return [
     'Total_Summary' => 'Total',
     'start_date' => 'Start Date',
     'end_date' => 'End Date',
-
+    'Customer_Type' => 'Customer Type',
+    'All_Customers' => 'All Customers',
+    'Walk_In_Customer' => 'Walk-in Customer',
+    'Registered_Customer' => 'Registered Customer',
+    'All_Status' => 'All Status',
+    'Reset_Filter' => 'Reset Filter',
 ];

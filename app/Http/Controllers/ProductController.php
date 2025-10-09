@@ -6,7 +6,7 @@ use App\Http\Requests\ProductStoreRequest;
 use App\Http\Requests\ProductUpdateRequest;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
-use App\Models\Category; 
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -25,14 +25,21 @@ class ProductController extends Controller
         }
         $products = $products->with('category')->latest()->paginate(10);
 
-        $categories = Category::all(); 
+        $categories = Category::all();
 
         if (request()->wantsJson()) {
+            // Tambahkan full image URL untuk response JSON
+            $products->getCollection()->transform(function ($product) {
+                $product->image_url = $product->image ? Storage::url($product->image) : null;
+                return $product;
+            });
+
             return ProductResource::collection($products);
         }
+
         return view('products.index')->with([
             'products' => $products,
-            'categories' => $categories 
+            'categories' => $categories
         ]);
     }
 

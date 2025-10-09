@@ -29,6 +29,7 @@ return [
     'First_Name' => 'First Name',
     'Last_Name' => 'Last Name',
     'Name' => 'Name',
+    'Product' => 'Product',
     'Email' => 'Email',
     'Phone' => 'Phone',
     'Address' => 'Address',
@@ -52,4 +53,10 @@ return [
     'No' => 'No',
     'Actions' => 'Actions',
     'No_Suppliers_Found' => "No Supplier",
+    'Select_products' => 'Select Products',
+    'Products_Hint' => 'Select the products supplied by this supplier',
+    'Hold_Ctrl' => 'Hold Ctrl/Cmd to select multiple products',
+    'Search_products' => 'Search products...',
+    'No_products_found' => 'No products found',
+    'Change_file' => 'Change File',
 ];

@@ -20,7 +20,23 @@ class Supplier extends Model
         'avatar'
     ];
 
-    // Define relationships here (e.g., with the Product model)
+    /**
+     * Relasi many-to-many dengan Product
+     */
+    public function products()
+    {
+        return $this->belongsToMany(Product::class, 'product_supplier')
+                    ->withTimestamps();
+    }
+
+    /**
+     * Accessor untuk nama lengkap
+     */
+    public function getFullNameAttribute()
+    {
+        return $this->first_name . ' ' . $this->last_name;
+    }
+
     public function getAvatarUrl()
     {
         return Storage::url($this->avatar);

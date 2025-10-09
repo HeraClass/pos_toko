@@ -87,6 +87,50 @@
             box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.15);
         }
 
+        /* Style untuk multiple select */
+        .form-control[multiple] {
+            min-height: 120px;
+            padding: 0.5rem;
+        }
+
+        .form-control[multiple] option {
+            padding: 0.5rem 0.75rem;
+            border-bottom: 1px solid #f1f1f1;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .form-control[multiple] option:hover {
+            background-color: #f8f9fa;
+        }
+
+        .form-control[multiple] option:checked {
+            background-color: #4361ee;
+            color: white;
+        }
+
+        /* Style untuk selected items display */
+        .selected-products {
+            margin-top: 0.5rem;
+        }
+
+        .selected-product-item {
+            display: inline-flex;
+            align-items: center;
+            background: #4361ee;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 16px;
+            font-size: 0.8rem;
+            margin: 0.25rem;
+        }
+
+        .selected-product-item .remove-product {
+            margin-left: 0.5rem;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
         .invalid-feedback {
             display: block;
             color: #e53e3e;
@@ -199,7 +243,6 @@
 
         .avatar-preview {
             margin-top: 1rem;
-            display: none;
         }
 
         .avatar-preview img {
@@ -223,6 +266,20 @@
             color: #a0aec0;
             font-size: 0.8rem;
             text-align: center;
+        }
+
+        .no-products-found {
+            padding: 0.5rem;
+            color: #6b7280;
+            font-style: italic;
+            text-align: center;
+            border: 1px dashed #d1d5db;
+            border-radius: 8px;
+            margin-top: 0.5rem;
+        }
+
+        .current-avatar {
+            margin-bottom: 1rem;
         }
 
         @media (max-width: 768px) {
@@ -314,17 +371,19 @@
     <div class="supplier-edit-container">
         <div class="card">
             <div class="card-body">
-                <form action="{{ route('suppliers.update', $supplier->id) }}" method="POST" enctype="multipart/form-data" id="supplierForm">
+                <form action="{{ route('suppliers.update', $supplier) }}" method="POST" enctype="multipart/form-data"
+                    id="supplierForm">
                     @csrf
                     @method('PUT')
 
                     <div class="form-section">
                         <div class="form-grid">
                             <div class="form-group">
-                                <label for="first_name" class="form-label required-field">{{ __('supplier.First_Name') }}</label>
+                                <label for="first_name"
+                                    class="form-label required-field">{{ __('supplier.First_Name') }}</label>
                                 <input type="text" name="first_name"
-                                    class="form-control @error('first_name') is-invalid @enderror"
-                                    id="first_name"
+                                    class="form-control @error('first_name') is-invalid @enderror" id="first_name"
+                                    placeholder="{{ __('supplier.First_Name') }}"
                                     value="{{ old('first_name', $supplier->first_name) }}" required>
                                 @error('first_name')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -332,10 +391,11 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="last_name" class="form-label required-field">{{ __('supplier.Last_Name') }}</label>
+                                <label for="last_name"
+                                    class="form-label required-field">{{ __('supplier.Last_Name') }}</label>
                                 <input type="text" name="last_name"
-                                    class="form-control @error('last_name') is-invalid @enderror"
-                                    id="last_name"
+                                    class="form-control @error('last_name') is-invalid @enderror" id="last_name"
+                                    placeholder="{{ __('supplier.Last_Name') }}"
                                     value="{{ old('last_name', $supplier->last_name) }}" required>
                                 @error('last_name')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -348,9 +408,8 @@
                         <div class="form-grid">
                             <div class="form-group">
                                 <label for="email" class="form-label">{{ __('supplier.Email') }}</label>
-                                <input type="email" name="email"
-                                    class="form-control @error('email') is-invalid @enderror"
-                                    id="email"
+                                <input type="email" name="email" class="form-control @error('email') is-invalid @enderror"
+                                    id="email" placeholder="{{ __('supplier.Email') }}"
                                     value="{{ old('email', $supplier->email) }}">
                                 @error('email')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -359,9 +418,8 @@
 
                             <div class="form-group">
                                 <label for="phone" class="form-label required-field">{{ __('supplier.Phone') }}</label>
-                                <input type="tel" name="phone"
-                                    class="form-control @error('phone') is-invalid @enderror"
-                                    id="phone"
+                                <input type="tel" name="phone" class="form-control @error('phone') is-invalid @enderror"
+                                    id="phone" placeholder="{{ __('supplier.Phone') }}"
                                     value="{{ old('phone', $supplier->phone) }}" required>
                                 @error('phone')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -372,9 +430,36 @@
 
                     <div class="form-section">
                         <div class="form-group">
+                            <label for="product_ids" class="form-label">{{ __('supplier.Product') }}</label>
+                            <input type="text" id="productSearch" class="form-control"
+                                placeholder="{{ __('supplier.Search_products') }}" style="margin-bottom: 0.5rem;">
+                            <select name="product_ids[]" id="product_ids"
+                                class="form-control @error('product_ids') is-invalid @enderror" multiple size="5">
+                                <option value="">{{ __('supplier.Select_products') }}</option>
+                                @foreach($products as $product)
+                                    <option value="{{ $product->id }}" {{ in_array($product->id, old('product_ids', $supplier->products->pluck('id')->toArray())) ? 'selected' : '' }}>
+                                        {{ $product->name }} - {{ $product->barcode }} (Rp
+                                        {{ number_format($product->price, 0, ',', '.') }})
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('product_ids')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <div class="selected-products" id="selectedProductsContainer"></div>
+                            <div class="form-hint">
+                                {{ __('supplier.Products_Hint') }} <br>
+                                {{ __('supplier.Hold_Ctrl') }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="form-group">
                             <label for="address" class="form-label">{{ __('supplier.Address') }}</label>
                             <textarea name="address" class="form-control @error('address') is-invalid @enderror"
-                                id="address" rows="3">{{ old('address', $supplier->address) }}</textarea>
+                                id="address" placeholder="{{ __('supplier.Address') }}"
+                                rows="3">{{ old('address', $supplier->address) }}</textarea>
                             @error('address')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -385,25 +470,24 @@
                         <div class="form-group">
                             <label for="avatar" class="form-label">{{ __('supplier.Avatar') }}</label>
 
-                            {{-- Preview avatar lama --}}
-                            @if ($supplier->avatar)
-                                <div class="avatar-preview" id="avatarPreview" style="display:block;">
-                                    <img src="{{ asset('storage/' . $supplier->avatar) }}" alt="Avatar preview" class="img-preview">
-                                </div>
-                            @else
-                                <div class="avatar-placeholder" id="avatarPlaceholder">
-                                    <div>{{ __('supplier.No_Avatar_Selected') }}</div>
-                                </div>
-                                <div class="avatar-preview" id="avatarPreview" style="display:none;">
-                                    <img src="" alt="Avatar preview" class="img-preview">
+                            @if($supplier->avatar)
+                                <div class="current-avatar">
+                                    <p class="form-label">{{ __('supplier.Current_Avatar') }}</p>
+                                    <img src="{{ Storage::url($supplier->avatar) }}" alt="Current avatar"
+                                        style="width: 120px; height: 120px; object-fit: cover; border-radius: 50%; border: 3px solid #e2e8f0;">
                                 </div>
                             @endif
+
+                            <div class="avatar-preview" id="avatarPreview" style="display: none;">
+                                <p class="form-label">{{ __('supplier.New_Avatar_Preview') }}</p>
+                                <img src="" alt="Avatar preview" class="img-preview">
+                            </div>
 
                             <div class="custom-file" style="margin-top: 1rem;">
                                 <input type="file" class="custom-file-input @error('avatar') is-invalid @enderror"
                                     name="avatar" id="avatar" accept="image/*">
                                 <label class="custom-file-label" for="avatar" id="avatarLabel">
-                                    {{ __('supplier.Choose_file') }}
+                                    {{ $supplier->avatar ? __('supplier.Change_file') : __('supplier.Choose_file') }}
                                 </label>
                                 @error('avatar')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -431,11 +515,95 @@
     <script src="{{ asset('plugins/bs-custom-file-input/bs-custom-file-input.min.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // Enhanced multiple select functionality
+            const productSelect = document.getElementById('product_ids');
+            const productSearch = document.getElementById('productSearch');
+            const selectedProductsContainer = document.getElementById('selectedProductsContainer');
+
+            // Function to update selected products display
+            function updateSelectedProductsDisplay() {
+                const selectedOptions = Array.from(productSelect.selectedOptions);
+                selectedProductsContainer.innerHTML = '';
+
+                selectedOptions.forEach(option => {
+                    if (option.value) {
+                        const selectedItem = document.createElement('span');
+                        selectedItem.className = 'selected-product-item';
+                        selectedItem.innerHTML = `
+                                    ${option.text}
+                                    <span class="remove-product" data-value="${option.value}">×</span>
+                                `;
+                        selectedProductsContainer.appendChild(selectedItem);
+                    }
+                });
+
+                // Add event listeners to remove buttons
+                document.querySelectorAll('.remove-product').forEach(button => {
+                    button.addEventListener('click', function () {
+                        const valueToRemove = this.getAttribute('data-value');
+                        const optionToRemove = productSelect.querySelector(`option[value="${valueToRemove}"]`);
+                        if (optionToRemove) {
+                            optionToRemove.selected = false;
+                            updateSelectedProductsDisplay();
+                        }
+                    });
+                });
+            }
+
+            // Search functionality for products
+            productSearch.addEventListener('input', function () {
+                const searchTerm = this.value.toLowerCase();
+                const options = productSelect.querySelectorAll('option');
+
+                let hasVisibleOptions = false;
+
+                options.forEach(option => {
+                    if (option.value === '') {
+                        // Always show placeholder option
+                        option.style.display = '';
+                        return;
+                    }
+
+                    const text = option.text.toLowerCase();
+                    if (text.includes(searchTerm)) {
+                        option.style.display = '';
+                        hasVisibleOptions = true;
+                    } else {
+                        option.style.display = 'none';
+                    }
+                });
+
+                // Remove existing no products message
+                const existingMessage = document.getElementById('noProductsFound');
+                if (existingMessage) {
+                    existingMessage.remove();
+                }
+
+                // Show no products found message if no results
+                if (!hasVisibleOptions && searchTerm) {
+                    const noResults = document.createElement('div');
+                    noResults.id = 'noProductsFound';
+                    noResults.className = 'no-products-found';
+                    noResults.textContent = '{{ __("supplier.No_products_found") }}';
+                    productSelect.parentNode.insertBefore(noResults, productSelect.nextSibling);
+                    productSelect.size = 2;
+                } else {
+                    productSelect.size = 5;
+                }
+            });
+
+            // Initialize selected products display
+            updateSelectedProductsDisplay();
+
+            // Update display when selection changes
+            productSelect.addEventListener('change', updateSelectedProductsDisplay);
+
+            // Initialize custom file input
             bsCustomFileInput.init();
 
+            // Avatar preview functionality
             const avatarInput = document.getElementById('avatar');
             const avatarPreview = document.getElementById('avatarPreview');
-            const avatarPlaceholder = document.getElementById('avatarPlaceholder');
             const avatarLabel = document.getElementById('avatarLabel');
             const previewImg = document.querySelector('.img-preview');
 
@@ -446,31 +614,53 @@
                     reader.onload = function (e) {
                         previewImg.src = e.target.result;
                         avatarPreview.style.display = 'block';
-                        if (avatarPlaceholder) avatarPlaceholder.style.display = 'none';
                     }
                     reader.readAsDataURL(file);
                     avatarLabel.textContent = file.name;
                 } else {
-                    if (avatarPlaceholder) avatarPlaceholder.style.display = 'flex';
                     avatarPreview.style.display = 'none';
-                    avatarLabel.textContent = '{{ __("supplier.Choose_file") }}';
+                    avatarLabel.textContent = '{{ $supplier->avatar ? __("supplier.Change_file") : __("supplier.Choose_file") }}';
                 }
             });
 
+            // Form submission handling
             const supplierForm = document.getElementById('supplierForm');
             const submitBtn = document.getElementById('submitBtn');
 
             supplierForm.addEventListener('submit', function () {
+                // Add loading state to submit button
                 submitBtn.classList.add('btn-loading');
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = '<i class="fas fa-spinner"></i> {{ __("common.Updating") }}';
             });
 
+            // Phone number formatting
             const phoneInput = document.getElementById('phone');
             phoneInput.addEventListener('input', function () {
-                this.value = this.value
-                    .replace(/(?!^)\+/g, '')  // hanya + di awal
-                    .replace(/[^0-9+]/g, ''); // sisanya angka saja
+                // Remove non-numeric characters
+                this.value = this.value.replace(/(?!^)\+/g, '').replace(/[^0-9+]/g, '');
+            });
+
+            // Email validation hint
+            const emailInput = document.getElementById('email');
+            emailInput.addEventListener('blur', function () {
+                if (this.value && !this.checkValidity()) {
+                    this.classList.add('is-invalid');
+                } else {
+                    this.classList.remove('is-invalid');
+                }
+            });
+
+            // Real-time validation for required fields
+            const requiredFields = document.querySelectorAll('input[required]');
+            requiredFields.forEach(field => {
+                field.addEventListener('blur', function () {
+                    if (!this.value) {
+                        this.classList.add('is-invalid');
+                    } else {
+                        this.classList.remove('is-invalid');
+                    }
+                });
             });
         });
     </script>

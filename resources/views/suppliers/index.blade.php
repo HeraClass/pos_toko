@@ -319,6 +319,7 @@
                                 <th>{{ __('supplier.ID') }}</th>
                                 <th>{{ __('supplier.Avatar') }}</th>
                                 <th>{{ __('supplier.Name') }}</th>
+                                <th>{{ __('supplier.Product') }}</th>
                                 <th>{{ __('supplier.Email') }}</th>
                                 <th>{{ __('supplier.Phone') }}</th>
                                 <th>{{ __('supplier.Address') }}</th>
@@ -338,6 +339,11 @@
                                     </td>
                                     <td>
                                         <div class="supplier-name">{{$supplier->first_name}} {{$supplier->last_name}}</div>
+                                    </td>
+                                    <td>
+                                        @foreach($supplier->products as $product)
+                                            <span class="badge badge-primary">{{ $product->name }}</span>
+                                        @endforeach
                                     </td>
                                     <td>
                                         <div class="supplier-email">{{$supplier->email}}</div>

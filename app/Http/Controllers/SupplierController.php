@@ -4,43 +4,27 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\SupplierStoreRequest;
 use App\Models\Supplier;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class SupplierController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
         if (request()->wantsJson()) {
-            return response(
-                Supplier::all()
-            );
+            return response(Supplier::with('products')->get());
         }
-        $suppliers = Supplier::latest()->paginate(10);
+        $suppliers = Supplier::with('products')->latest()->paginate(10);
         return view('suppliers.index')->with('suppliers', $suppliers);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function create()
     {
-        return view('suppliers.create');
+        $products = Product::where('status', true)->get();
+        return view('suppliers.create', compact('products'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(SupplierStoreRequest $request)
     {
         $avatar_path = '';
@@ -58,38 +42,24 @@ class SupplierController extends Controller
             'avatar' => $avatar_path,
         ]);
 
+        // Attach products to supplier
+        if ($request->has('product_ids')) {
+            $supplier->products()->attach($request->product_ids);
+        }
+
         if (!$supplier) {
             return redirect()->back()->with('error', __('supplier.error_creating'));
         }
         return redirect()->route('suppliers.index')->with('success', __('supplier.success_creating'));
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Supplier  $supplier
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Supplier $supplier) {}
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Supplier  $supplier
-     * @return \Illuminate\Http\Response
-     */
     public function edit(Supplier $supplier)
     {
-        return view('suppliers.edit', compact('supplier'));
+        $products = Product::where('status', true)->get();
+        $supplier->load('products');
+        return view('suppliers.edit', compact('supplier', 'products'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Supplier  $supplier
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, Supplier $supplier)
     {
         $supplier->first_name = $request->first_name;
@@ -109,6 +79,13 @@ class SupplierController extends Controller
             $supplier->avatar = $avatar_path;
         }
 
+        // Sync products
+        if ($request->has('product_ids')) {
+            $supplier->products()->sync($request->product_ids);
+        } else {
+            $supplier->products()->detach();
+        }
+
         if (!$supplier->save()) {
             return redirect()->back()->with('error', __('supplier.error_updating'));
         }
@@ -120,6 +97,9 @@ class SupplierController extends Controller
         if ($supplier->avatar) {
             Storage::delete($supplier->avatar);
         }
+
+        // Detach all products before deleting supplier
+        $supplier->products()->detach();
 
         $supplier->delete();
 

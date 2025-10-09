@@ -87,6 +87,50 @@
             box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.15);
         }
 
+        /* Style untuk multiple select */
+        .form-control[multiple] {
+            min-height: 120px;
+            padding: 0.5rem;
+        }
+
+        .form-control[multiple] option {
+            padding: 0.5rem 0.75rem;
+            border-bottom: 1px solid #f1f1f1;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .form-control[multiple] option:hover {
+            background-color: #f8f9fa;
+        }
+
+        .form-control[multiple] option:checked {
+            background-color: #4361ee;
+            color: white;
+        }
+
+        /* Style untuk selected items display */
+        .selected-products {
+            margin-top: 0.5rem;
+        }
+
+        .selected-product-item {
+            display: inline-flex;
+            align-items: center;
+            background: #4361ee;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 16px;
+            font-size: 0.8rem;
+            margin: 0.25rem;
+        }
+
+        .selected-product-item .remove-product {
+            margin-left: 0.5rem;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
         .invalid-feedback {
             display: block;
             color: #e53e3e;
@@ -223,6 +267,16 @@
             color: #a0aec0;
             font-size: 0.8rem;
             text-align: center;
+        }
+
+        .no-products-found {
+            padding: 0.5rem;
+            color: #6b7280;
+            font-style: italic;
+            text-align: center;
+            border: 1px dashed #d1d5db;
+            border-radius: 8px;
+            margin-top: 0.5rem;
         }
 
         @media (max-width: 768px) {
@@ -367,6 +421,32 @@
 
                     <div class="form-section">
                         <div class="form-group">
+                            <label for="product_ids" class="form-label">{{ __('supplier.Product') }}</label>
+                            <input type="text" id="productSearch" class="form-control"
+                                placeholder="{{ __('supplier.Search_products') }}" style="margin-bottom: 0.5rem;">
+                            <select name="product_ids[]" id="product_ids"
+                                class="form-control @error('product_ids') is-invalid @enderror" multiple size="5">
+                                <option value="">{{ __('supplier.Select_products') }}</option>
+                                @foreach($products as $product)
+                                    <option value="{{ $product->id }}" {{ in_array($product->id, old('product_ids', [])) ? 'selected' : '' }}>
+                                        {{ $product->name }} - {{ $product->barcode }} (Rp
+                                        {{ number_format($product->price, 0, ',', '.') }})
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('product_ids')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <div class="selected-products" id="selectedProductsContainer"></div>
+                            <div class="form-hint">
+                                {{ __('supplier.Products_Hint') }} <br>
+                                {{ __('supplier.Hold_Ctrl') }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="form-group">
                             <label for="address" class="form-label">{{ __('supplier.Address') }}</label>
                             <textarea name="address" class="form-control @error('address') is-invalid @enderror"
                                 id="address" placeholder="{{ __('supplier.Address') }}"
@@ -421,6 +501,89 @@
     <script src="{{ asset('plugins/bs-custom-file-input/bs-custom-file-input.min.js') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // Enhanced multiple select functionality
+            const productSelect = document.getElementById('product_ids');
+            const productSearch = document.getElementById('productSearch');
+            const selectedProductsContainer = document.getElementById('selectedProductsContainer');
+
+            // Function to update selected products display
+            function updateSelectedProductsDisplay() {
+                const selectedOptions = Array.from(productSelect.selectedOptions);
+                selectedProductsContainer.innerHTML = '';
+
+                selectedOptions.forEach(option => {
+                    if (option.value) {
+                        const selectedItem = document.createElement('span');
+                        selectedItem.className = 'selected-product-item';
+                        selectedItem.innerHTML = `
+                                ${option.text}
+                                <span class="remove-product" data-value="${option.value}">×</span>
+                            `;
+                        selectedProductsContainer.appendChild(selectedItem);
+                    }
+                });
+
+                // Add event listeners to remove buttons
+                document.querySelectorAll('.remove-product').forEach(button => {
+                    button.addEventListener('click', function () {
+                        const valueToRemove = this.getAttribute('data-value');
+                        const optionToRemove = productSelect.querySelector(`option[value="${valueToRemove}"]`);
+                        if (optionToRemove) {
+                            optionToRemove.selected = false;
+                            updateSelectedProductsDisplay();
+                        }
+                    });
+                });
+            }
+
+            // Search functionality for products
+            productSearch.addEventListener('input', function () {
+                const searchTerm = this.value.toLowerCase();
+                const options = productSelect.querySelectorAll('option');
+
+                let hasVisibleOptions = false;
+
+                options.forEach(option => {
+                    if (option.value === '') {
+                        // Always show placeholder option
+                        option.style.display = '';
+                        return;
+                    }
+
+                    const text = option.text.toLowerCase();
+                    if (text.includes(searchTerm)) {
+                        option.style.display = '';
+                        hasVisibleOptions = true;
+                    } else {
+                        option.style.display = 'none';
+                    }
+                });
+
+                // Remove existing no products message
+                const existingMessage = document.getElementById('noProductsFound');
+                if (existingMessage) {
+                    existingMessage.remove();
+                }
+
+                // Show no products found message if no results
+                if (!hasVisibleOptions && searchTerm) {
+                    const noResults = document.createElement('div');
+                    noResults.id = 'noProductsFound';
+                    noResults.className = 'no-products-found';
+                    noResults.textContent = '{{ __("supplier.No_products_found") }}';
+                    productSelect.parentNode.insertBefore(noResults, productSelect.nextSibling);
+                    productSelect.size = 2;
+                } else {
+                    productSelect.size = 5;
+                }
+            });
+
+            // Initialize selected products display
+            updateSelectedProductsDisplay();
+
+            // Update display when selection changes
+            productSelect.addEventListener('change', updateSelectedProductsDisplay);
+
             // Initialize custom file input
             bsCustomFileInput.init();
 

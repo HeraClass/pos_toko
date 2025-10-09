@@ -67,4 +67,6 @@ return [
     'Small' => 'Kecil',
     'Medium' => 'Sedang',
     'Large' => 'Besar',
+    'Deleted' => 'Berhasil dihapus',
+    'Deleted_Message' => 'Produk telah dihapus'
 ];

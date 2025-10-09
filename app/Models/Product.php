@@ -30,6 +30,15 @@ class Product extends Model
     }
 
     /**
+     * Relasi many-to-many dengan Supplier
+     */
+    public function suppliers()
+    {
+        return $this->belongsToMany(Supplier::class, 'product_supplier')
+                    ->withTimestamps();
+    }
+
+    /**
      * Ambil URL gambar produk
      */
     public function getImageUrl(): string
