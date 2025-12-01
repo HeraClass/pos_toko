@@ -168,7 +168,7 @@
 
         .form-actions {
             display: flex;
-            gap: 1rem;
+            gap: 0.5rem;
             justify-content: flex-end;
             margin-top: 2rem;
             padding-top: 1.5rem;
@@ -176,7 +176,7 @@
         }
 
         .btn {
-            padding: 0.75rem 1.5rem;
+            padding: 0.5rem 1.5rem;
             border-radius: 8px;
             font-weight: 500;
             font-size: 0.9rem;
@@ -185,8 +185,9 @@
             cursor: pointer;
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
-            min-height: 48px;
+            gap: 0.375rem;
+            text-decoration: none;
+            min-height: 40px;
         }
 
         .btn-primary {
@@ -415,7 +416,6 @@
                     <div class="form-section">
                         <div class="form-grid">
                             
-
                             <!-- FIELD CATEGORY_ID -->
                             <div class="form-group select-form-group">
                                 <label for="category_id" class="form-label">{{ __('product.Category') }}</label>
@@ -449,7 +449,7 @@
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
-    </div>
+                        </div>
                     </div>
 
                     <div class="form-section">
@@ -512,11 +512,11 @@
                     </div>
 
                     <div class="form-actions">
-                        <a href="{{ route('products.index') }}" class="btn btn-danger">
-                            <i class="fas fa-times"></i> {{ __('common.Cancel') }}
+                        <a href="{{ route('products.index') }}" class="btn btn-secondary">
+                            {{ __('common.Cancel') }}
                         </a>
                         <button type="submit" class="btn btn-primary" id="submitBtn">
-                            <i class="fas fa-plus-circle"></i> {{ __('common.Create') }}
+                            {{ __('common.Create') }}
                         </button>
                     </div>
                 </form>

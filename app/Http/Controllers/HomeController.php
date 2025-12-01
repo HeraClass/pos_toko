@@ -14,9 +14,9 @@ class HomeController extends Controller
      *
      * @return void
      */
-    public function __construct()
+    function __construct()
     {
-        $this->middleware('auth');
+        $this->middleware('permission:dashboard.view', ['only' => ['index']]);
     }
 
     /**

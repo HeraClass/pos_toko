@@ -23,6 +23,7 @@ return [
     'Update' => 'Perbarui',
     'Cancel'        => 'Batal',
     'Created_At' => 'Dibuat Pada',
+    'Updated_At' => 'Diperbarui Pada',
     'Actions' => 'Aksi',
     'Active' => 'Aktif',
     'Inactive' => 'Tidak Aktif',

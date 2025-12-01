@@ -7,6 +7,12 @@ use Illuminate\Http\Request;
 
 class SettingController extends Controller
 {
+    function __construct()
+    {
+        $this->middleware('permission:settings.view', ['only' => ['index']]);
+        $this->middleware('permission:settings.create', ['only' => ['store']]);
+    }
+
     public function index()
     {
         return view('settings.edit');

@@ -1,23 +1,21 @@
 @extends('layouts.admin')
 
-@section('title', __('Supplier List'))
-@section('content-header', __('Supplier List'))
+@section('title', __('supplier.Supplier_List'))
+@section('content-header', __('supplier.Supplier_List'))
 @section('content-actions')
-    <div style="display: flex; align-items: center; gap: 1rem;">
-        <div class="search-input" style="min-width: 250px;">
-            <i class="fas fa-search"></i>
-            <input type="text" id="searchInput" placeholder="{{ __('Search Suppliers') }}" onkeyup="filterSuppliers()">
-        </div>
+    <x-export-button route="suppliers" :filters="request()->all()" title="Export Suppliers" filename="laporan_suppliers" />
+
+    @can('suppliers.create')
         <a href="{{route('suppliers.create')}}" class="btn btn-primary">
-            <i class="fas fa-user-plus"></i> {{ __('Add Supplier') }}
+            <i class="fas fa-plus-circle"></i> {{ __('supplier.Add_Supplier') }}
         </a>
-    </div>
+    @endcan
 @endsection
 
 @section('css')
     <link rel="stylesheet" href="{{ asset('plugins/sweetalert2/sweetalert2.min.css') }}">
     <style>
-        .suppliers-container {
+        .supplier-list-container {
             padding: 0.5rem;
         }
 
@@ -32,13 +30,10 @@
             background: white;
             border-bottom: 1px solid #e2e8f0;
             padding: 1.5rem;
-            display: flex;
-            justify-content: between;
-            align-items: center;
         }
 
         .card-title {
-            font-size: 1.25rem;
+            font-size: 1.5rem;
             font-weight: 600;
             color: #2d3748;
             margin: 0;
@@ -48,156 +43,274 @@
             padding: 0;
         }
 
-        .suppliers-table {
-            width: 100%;
-            border-collapse: collapse;
+        /* Table Container dengan Scroll */
+        .table-container {
+            overflow: hidden;
+            position: relative;
         }
 
-        .suppliers-table th {
-            background-color: #f7fafc;
-            padding: 1rem 1.25rem;
+        .table-scroll-wrapper {
+            overflow: auto;
+            max-height: 70vh;
+        }
+
+        .supplier-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 0;
+            min-width: 1000px;
+        }
+
+        .supplier-table thead {
+            background-color: #f8fafc;
+            border-bottom: 2px solid #e2e8f0;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .supplier-table th {
+            padding: 1rem 1.5rem;
             text-align: left;
             font-weight: 600;
             color: #4a5568;
-            border-bottom: 2px solid #e2e8f0;
             font-size: 0.875rem;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .suppliers-table td {
-            padding: 1rem 1.25rem;
+            letter-spacing: 0.05em;
             border-bottom: 1px solid #e2e8f0;
-            vertical-align: middle;
-            color: #4a5568;
+            background-color: #f8fafc;
+            position: sticky;
+            top: 0;
+            white-space: nowrap;
         }
 
-        .suppliers-table tr:last-child td {
+        .supplier-table td {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            color: #4a5568;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+
+        .supplier-table tbody tr {
+            transition: all 0.3s ease;
+            background-color: white;
+        }
+
+        .supplier-table tbody tr:hover {
+            background-color: #f7fafc;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .supplier-table tbody tr:last-child td {
             border-bottom: none;
         }
 
-        .suppliers-table tr:hover {
-            background-color: #f8f9fa;
-        }
-
-        .avatar-container {
-            width: 50px;
-            height: 50px;
+        .supplier-avatar {
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            overflow: hidden;
-            border: 2px solid #e2e8f0;
-            transition: transform 0.3s ease;
-        }
-
-        .suppliers-table tr:hover .avatar-container {
-            transform: scale(1.05);
-        }
-
-        .avatar-img {
-            width: 100%;
-            height: 100%;
             object-fit: cover;
+            border: 2px solid #e2e8f0;
         }
 
         .supplier-name {
-            font-weight: 500;
+            font-weight: 600;
             color: #2d3748;
+            min-width: 120px;
         }
 
         .supplier-email {
-            color: #4a5568;
-            font-size: 0.9rem;
+            color: #6b7280;
+            min-width: 150px;
         }
 
         .supplier-phone {
+            color: #4a5568;
             font-weight: 500;
-            color: #2d3748;
+            min-width: 120px;
         }
 
         .supplier-address {
-            color: #4a5568;
-            font-size: 0.9rem;
+            color: #6b7280;
             max-width: 200px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
 
+        .product-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.25rem;
+            max-width: 200px;
+            min-width: 150px;
+        }
+
+        .product-badge {
+            background-color: #4361ee;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .no-products {
+            color: #9ca3af;
+            font-style: italic;
+            font-size: 0.8rem;
+        }
+
+        .created-at {
+            color: #6b7280;
+            font-size: 0.875rem;
+            min-width: 120px;
+        }
+
         .action-buttons {
             display: flex;
             gap: 0.5rem;
+            flex-wrap: wrap;
+            min-width: 150px;
         }
 
-        .btn-action {
-            width: 36px;
-            height: 36px;
+        .btn {
+            padding: 0.5rem 1rem;
             border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            font-weight: 500;
+            font-size: 0.8rem;
             transition: all 0.3s ease;
             border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            text-decoration: none;
+            min-height: 36px;
         }
 
-        .btn-edit {
-            background-color: #ebf8ff;
-            color: #3182ce;
+        .btn-sm {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.75rem;
+            min-height: 32px;
         }
 
-        .btn-edit:hover {
-            background-color: #bee3f8;
+        .btn-info {
+            background-color: #4299e1;
+            color: white;
+        }
+
+        .btn-info:hover {
+            background-color: #3182ce;
             transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(66, 153, 225, 0.3);
         }
 
-        .btn-delete {
-            background-color: #fed7d7;
-            color: #e53e3e;
+        .btn-danger {
+            background-color: #e53e3e;
+            color: white;
         }
 
-        .btn-delete:hover {
-            background-color: #feb2b2;
+        .btn-danger:hover {
+            background-color: #c53030;
             transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(229, 62, 62, 0.3);
+        }
+
+        .btn-primary {
+            background-color: #4361ee;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #3a56d4;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(67, 97, 238, 0.3);
+        }
+
+        .btn-secondary {
+            background-color: #718096;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #4a5568;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(113, 128, 150, 0.3);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: #6b7280;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            color: #d1d5db;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state-description {
+            color: #6b7280;
+            margin-bottom: 1.5rem;
         }
 
         .pagination-container {
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
+            align-items: center;
             padding: 1.5rem;
-            background: white;
             border-top: 1px solid #e2e8f0;
+            background-color: #f8fafc;
+        }
+
+        .pagination-info {
+            color: #6b7280;
+            font-size: 0.875rem;
         }
 
         .pagination {
             display: flex;
             gap: 0.5rem;
             list-style: none;
-            padding: 0;
             margin: 0;
+            padding: 0;
         }
 
         .page-item {
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            margin: 0;
         }
 
         .page-link {
-            width: 40px;
-            height: 40px;
             display: flex;
             align-items: center;
             justify-content: center;
+            min-width: 40px;
+            height: 40px;
+            padding: 0 0.75rem;
+            border: 1px solid #d1d5db;
             border-radius: 8px;
-            border: 1px solid #e2e8f0;
-            color: #4a5568;
+            color: #4b5563;
             text-decoration: none;
             font-weight: 500;
+            font-size: 0.875rem;
             transition: all 0.3s ease;
+            background-color: white;
         }
 
         .page-link:hover {
-            background-color: #f7fafc;
-            border-color: #cbd5e0;
+            background-color: #f3f4f6;
+            border-color: #9ca3af;
         }
 
         .page-item.active .page-link {
@@ -207,194 +320,401 @@
         }
 
         .page-item.disabled .page-link {
-            opacity: 0.5;
+            color: #9ca3af;
+            background-color: #f9fafb;
+            border-color: #d1d5db;
             cursor: not-allowed;
         }
 
-        .empty-state {
-            text-align: center;
-            padding: 3rem;
-            color: #a0aec0;
+        .search-filter-container {
+            display: flex;
+            gap: 1rem;
+            padding: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            background-color: #f8fafc;
+            flex-wrap: wrap;
+            align-items: flex-end;
         }
 
-        .empty-state i {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            opacity: 0.5;
+        .search-box {
+            position: relative;
+            flex: 1;
+            min-width: 250px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
         }
 
-        .empty-state p {
-            font-size: 1.1rem;
-            margin-bottom: 1.5rem;
+        .search-input-wrapper {
+            position: relative;
+            width: 100%;
         }
 
         .search-input {
-            position: relative;
-        }
-
-        .search-input input {
             width: 100%;
-            padding: 0.5rem 1rem 0.5rem 2.5rem;
-            border: 1px solid #e2e8f0;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border: 1px solid #d1d5db;
             border-radius: 8px;
-            font-size: 0.9rem;
-            height: 38px;
+            font-size: 0.875rem;
             transition: all 0.3s ease;
+            background-color: white;
         }
 
-        .search-input input:focus {
+        .search-input:focus {
             outline: none;
             border-color: #4361ee;
             box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
         }
 
-        .search-input i {
+        .search-icon {
             position: absolute;
-            left: 1rem;
+            left: 0.75rem;
             top: 50%;
             transform: translateY(-50%);
-            color: #a0aec0;
+            color: #6b7280;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            min-width: 150px;
+        }
+
+        .filter-select {
+            padding: 0.75rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            background-color: white;
+            min-width: 150px;
+            cursor: pointer;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: #4361ee;
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+        }
+
+        .date-label {
+            font-size: 0.75rem;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .reset-button {
+            height: 46px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            white-space: nowrap;
+        }
+
+        /* Sorting Styles */
+        .sort-link {
+            color: #6b7280;
+            text-decoration: none;
+            margin-left: 0.25rem;
+            transition: color 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .sort-link:hover {
+            color: #4361ee;
+        }
+
+        .th-sortable {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+        }
+
+        .th-sortable:hover {
+            background-color: #f1f5f9;
+        }
+
+        .sort-icon {
+            font-size: 0.8em;
+            margin-left: 4px;
+        }
+
+        .sort-asc .sort-icon {
+            color: #4361ee;
+        }
+
+        .sort-desc .sort-icon {
+            color: #4361ee;
+        }
+
+        /* Current sort indicator */
+        .current-sort {
+            color: #4361ee;
+        }
+
+        .current-sort .sort-icon {
+            color: #4361ee;
+        }
+
+        /* Scrollbar Styling */
+        .table-scroll-wrapper::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        .table-scroll-wrapper::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .table-scroll-wrapper::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+
+        .table-scroll-wrapper::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
         }
 
         @media (max-width: 768px) {
-            .suppliers-table-container {
-                margin: 0 -1rem;
+
+            .supplier-table th,
+            .supplier-table td {
+                padding: 0.75rem 1rem;
             }
 
-            .suppliers-table {
-                min-width: 800px;
+            .search-filter-container {
+                flex-direction: column;
+                align-items: stretch;
             }
 
-            .search-input {
+            .search-box {
                 min-width: 100%;
-                margin-bottom: 1rem;
             }
 
             .action-buttons {
                 flex-direction: column;
             }
 
-            .btn-action {
-                width: 32px;
-                height: 32px;
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .pagination-container {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .table-scroll-wrapper {
+                max-height: 60vh;
             }
         }
 
-        .table-responsive {
-            border-radius: 12px;
-            overflow: hidden;
+        /* Animation for table rows */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        .created-at {
-            color: #718096;
-            font-size: 0.875rem;
+        .supplier-table tbody tr {
+            animation: fadeInUp 0.5s ease;
         }
 
-        /* Style untuk header actions */
-        .card-header .card-actions {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
+        .supplier-table tbody tr:nth-child(even) {
+            animation-delay: 0.1s;
         }
 
-        .btn i {
-            font-size: 14px;
-            /* kecilin ukuran icon */
-            margin-right: 6px;
-            /* kasih jarak biar gak nempel teks */
-            padding: auto
+        .supplier-table tbody tr:nth-child(odd) {
+            animation-delay: 0.2s;
         }
     </style>
 @endsection
 
 @section('content')
-    <div class="suppliers-container">
+    <div class="supplier-list-container">
         <div class="card">
             <div class="card-body">
-                <!-- suppliers Table -->
-                <div class="table-responsive">
-                    <table class="suppliers-table">
-                        <thead>
-                            <tr>
-                                <th>{{ __('supplier.ID') }}</th>
-                                <th>{{ __('supplier.Avatar') }}</th>
-                                <th>{{ __('supplier.Name') }}</th>
-                                <th>{{ __('supplier.Product') }}</th>
-                                <th>{{ __('supplier.Email') }}</th>
-                                <th>{{ __('supplier.Phone') }}</th>
-                                <th>{{ __('supplier.Address') }}</th>
-                                <th>{{ __('common.Created_At') }}</th>
-                                <th>{{ __('supplier.Actions') }}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($suppliers as $supplier)
-                                <tr>
-                                    <td>{{$supplier->id}}</td>
-                                    <td>
-                                        <div class="avatar-container">
-                                            <img class="avatar-img" src="{{$supplier->getAvatarUrl()}}"
-                                                alt="{{$supplier->first_name}} {{$supplier->last_name}}">
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="supplier-name">{{$supplier->first_name}} {{$supplier->last_name}}</div>
-                                    </td>
-                                    <td>
-                                        @foreach($supplier->products as $product)
-                                            <span class="badge badge-primary">{{ $product->name }}</span>
-                                        @endforeach
-                                    </td>
-                                    <td>
-                                        <div class="supplier-email">{{$supplier->email}}</div>
-                                    </td>
-                                    <td>
-                                        <div class="supplier-phone">{{$supplier->phone}}</div>
-                                    </td>
-                                    <td>
-                                        <div class="supplier-address" title="{{$supplier->address}}">{{$supplier->address}}
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="created-at">{{$supplier->created_at->format('M d, Y')}}</div>
-                                    </td>
-                                    <td>
-                                        <div class="action-buttons">
-                                            <a href="{{ route('suppliers.edit', $supplier) }}" class="btn-action btn-edit"
-                                                title="{{ __('supplier.Edit_supplier') }}">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            <button class="btn-action btn-delete"
-                                                data-url="{{route('suppliers.destroy', $supplier)}}"
-                                                title="{{ __('supplier.Delete_supplier') }}">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforeach
+                <!-- Search and Filter Section -->
+                <div class="search-filter-container">
+                    <!-- Hidden fields untuk preserve sort parameters -->
+                    <input type="hidden" name="sort_by" value="{{ request('sort_by', 'created_at') }}">
+                    <input type="hidden" name="sort_order" value="{{ request('sort_order', 'desc') }}">
 
-                            @if($suppliers->count() === 0)
-                                <tr>
-                                    <td colspan="8">
-                                        <div class="empty-state">
-                                            <i class="fas fa-users fa-2x"></i>
-                                            <p>{{ __('supplier.No_suppliers_Found') }}</p>
-                                            <a href="{{route('suppliers.create')}}" class="btn btn-primary">
-                                                <i class="fas fa-user-plus fa-sm"></i> {{ __('supplier.Add_supplier') }}
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endif
-                        </tbody>
-                    </table>
+                    <div class="search-box">
+                        <label class="date-label">Search</label>
+                        <div class="search-input-wrapper">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" class="search-input"
+                                placeholder="Search suppliers by name, email, phone, address, or products..."
+                                id="searchInput" value="{{ request('search') }}">
+                        </div>
+                    </div>
+
+                    <!-- Reset Button -->
+                    <div class="filter-group">
+                        <label class="date-label" style="visibility: hidden;">Reset</label>
+                        <a href="{{ route('suppliers.index') }}" class="btn btn-secondary reset-button" id="resetButton">
+                            <i class="fas fa-refresh"></i> Reset
+                        </a>
+                    </div>
                 </div>
 
-                <!-- Pagination -->
+                <!-- Table Section dengan Scroll -->
+                <div class="table-container">
+                    <div class="table-scroll-wrapper">
+                        @if($suppliers->count() > 0)
+                            <table class="supplier-table">
+                                <thead>
+                                    <tr>
+                                        <th class="th-sortable">
+                                            ID
+                                            <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'id', 'sort_order' => request('sort_order') == 'asc' ? 'desc' : 'asc']) }}"
+                                                class="sort-link">
+                                                <i class="fas fa-sort"></i>
+                                            </a>
+                                        </th>
+                                        <th>Avatar</th>
+                                        <th class="th-sortable">
+                                            Name
+                                            <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'first_name', 'sort_order' => request('sort_order') == 'asc' ? 'desc' : 'asc']) }}"
+                                                class="sort-link">
+                                                <i class="fas fa-sort"></i>
+                                            </a>
+                                        </th>
+                                        <th>Products</th>
+                                        <th class="th-sortable">
+                                            Email
+                                            <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'email', 'sort_order' => request('sort_order') == 'asc' ? 'desc' : 'asc']) }}"
+                                                class="sort-link">
+                                                <i class="fas fa-sort"></i>
+                                            </a>
+                                        </th>
+                                        <th class="th-sortable">
+                                            Phone
+                                            <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'phone', 'sort_order' => request('sort_order') == 'asc' ? 'desc' : 'asc']) }}"
+                                                class="sort-link">
+                                                <i class="fas fa-sort"></i>
+                                            </a>
+                                        </th>
+                                        <th>Address</th>
+                                        <th class="th-sortable">
+                                            Created At
+                                            <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'created_at', 'sort_order' => request('sort_order') == 'asc' ? 'desc' : 'asc']) }}"
+                                                class="sort-link">
+                                                <i class="fas fa-sort"></i>
+                                            </a>
+                                        </th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($suppliers as $supplier)
+                                        <tr>
+                                            <td><strong>#{{ $supplier->id }}</strong></td>
+                                            <td>
+                                                <img src="{{ $supplier->getAvatarUrl() }}"
+                                                    alt="{{ $supplier->first_name }} {{ $supplier->last_name }}"
+                                                    class="supplier-avatar">
+                                            </td>
+                                            <td>
+                                                <div class="supplier-name">{{ $supplier->first_name }} {{ $supplier->last_name }}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="product-badges">
+                                                    @if($supplier->products->count() > 0)
+                                                        @foreach($supplier->products->take(3) as $product)
+                                                            <span class="product-badge" title="{{ $product->name }}">
+                                                                {{ Str::limit($product->name, 15) }}
+                                                            </span>
+                                                        @endforeach
+                                                        @if($supplier->products->count() > 3)
+                                                            <span class="product-badge">+{{ $supplier->products->count() - 3 }} more</span>
+                                                        @endif
+                                                    @else
+                                                        <span class="no-products">No products</span>
+                                                    @endif
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="supplier-email">{{ $supplier->email }}</div>
+                                            </td>
+                                            <td>
+                                                <div class="supplier-phone">{{ $supplier->phone }}</div>
+                                            </td>
+                                            <td>
+                                                <div class="supplier-address" title="{{ $supplier->address }}">
+                                                    {{ $supplier->address }}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="created-at">{{ $supplier->created_at->format('M d, Y') }}</div>
+                                            </td>
+                                            <td>
+                                                @canany(['suppliers.edit', 'suppliers.delete'])
+                                                    <div class="action-buttons">
+                                                        @can('suppliers.edit')
+                                                            <a href="{{ route('suppliers.edit', $supplier) }}" class="btn btn-info btn-sm"
+                                                                title="Edit Supplier">
+                                                                <i class="fas fa-edit"></i>
+                                                                <span class="d-none d-md-inline">Edit</span>
+                                                            </a>
+                                                        @endcan
+                                                        @can('suppliers.delete')
+                                                            <button class="btn btn-danger btn-sm delete-supplier"
+                                                                data-url="{{ route('suppliers.destroy', $supplier) }}"
+                                                                data-name="{{ $supplier->first_name }} {{ $supplier->last_name }}"
+                                                                title="Delete Supplier">
+                                                                <i class="fas fa-trash"></i>
+                                                                <span class="d-none d-md-inline">Delete</span>
+                                                            </button>
+                                                        @endcan
+                                                    </div>
+                                                @else
+                                                    <span class="badge bg-secondary">No Action</span>
+                                                @endcanany
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        @else
+                            <div class="empty-state">
+                                <div class="empty-state-icon">
+                                    <i class="fas fa-truck"></i>
+                                </div>
+                                <h3 class="empty-state-title">No Suppliers Found</h3>
+                                <p class="empty-state-description">Get started by creating your first supplier.</p>
+                                @can('suppliers.create')
+                                    <a href="{{ route('suppliers.create') }}" class="btn btn-primary">
+                                        <i class="fas fa-plus-circle"></i> Create Supplier
+                                    </a>
+                                @endcan
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
+                <!-- Pagination Section -->
                 @if($suppliers->count() > 0)
                     <div class="pagination-container">
-                        {{ $suppliers->links() }}
+                        <div class="pagination-info">
+                            Showing {{ $suppliers->firstItem() }} to {{ $suppliers->lastItem() }} of {{ $suppliers->total() }}
+                            suppliers
+                        </div>
+                        <nav>
+                            {{ $suppliers->appends(request()->query())->links() }}
+                        </nav>
                     </div>
                 @endif
             </div>
@@ -403,101 +723,112 @@
 @endsection
 
 @section('js')
-    <script src="{{ asset('plugins/sweetalert2/sweetalert2.min.js') }}"></script>
+    <script src="{{ asset('plugins/sweetalert2/sweetalert2.min.css') }}"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // SweetAlert delete confirmation
-            document.querySelectorAll('.btn-delete').forEach(button => {
+            // Search functionality dengan server-side filtering
+            const searchInput = document.getElementById('searchInput');
+            const resetButton = document.getElementById('resetButton');
+
+            // Function untuk update URL dengan filters
+            function updateURL() {
+                const params = new URLSearchParams();
+
+                // Add search
+                if (searchInput.value) params.append('search', searchInput.value);
+
+                // Preserve sort parameters
+                const currentUrl = new URL(window.location.href);
+                const sortBy = currentUrl.searchParams.get('sort_by') || 'created_at';
+                const sortOrder = currentUrl.searchParams.get('sort_order') || 'desc';
+
+                params.append('sort_by', sortBy);
+                params.append('sort_order', sortOrder);
+
+                console.log('Redirecting to:', `{{ route('suppliers.index') }}?${params.toString()}`);
+
+                // Redirect ke URL baru dengan filters
+                window.location.href = `{{ route('suppliers.index') }}?${params.toString()}`;
+            }
+
+            // Event listeners untuk search dengan debounce
+            let searchTimeout;
+            searchInput.addEventListener('input', function () {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(updateURL, 500);
+            });
+
+            // Add visual indicators untuk current sort
+            const currentSortBy = '{{ request("sort_by", "created_at") }}';
+            const currentSortOrder = '{{ request("sort_order", "desc") }}';
+
+            document.querySelectorAll('.sort-link').forEach(link => {
+                const url = new URL(link.href);
+                const sortBy = url.searchParams.get('sort_by');
+
+                if (sortBy === currentSortBy) {
+                    const icon = link.querySelector('i');
+                    if (icon) {
+                        // Update icon berdasarkan sort order
+                        icon.className = currentSortOrder === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
+                        link.classList.add('current-sort');
+                        // Tambahkan class ke parent th juga
+                        link.closest('th').classList.add('current-sort');
+                    }
+                }
+            });
+
+            // Reset button functionality
+            resetButton.addEventListener('click', function (e) {
+                e.preventDefault();
+                window.location.href = '{{ route('suppliers.index') }}';
+            });
+
+            // Delete supplier functionality dengan modal SweetAlert2
+            document.querySelectorAll('.delete-supplier').forEach(button => {
                 button.addEventListener('click', function () {
                     const url = this.dataset.url;
-                    const supplierName = this.closest('tr').querySelector('.supplier-name').textContent;
+                    const supplierName = this.dataset.name;
 
                     Swal.fire({
-                        title: '{{ __("supplier.sure") }}',
-                        text: '{{ __("supplier.really_delete") }}: ' + supplierName + '?',
+                        title: 'Are you sure?',
+                        text: `You are about to delete supplier: ${supplierName}. This action cannot be undone!`,
                         icon: 'warning',
                         showCancelButton: true,
-                        confirmButtonColor: '#4361ee',
+                        confirmButtonColor: '#e53e3e',
                         cancelButtonColor: '#6c757d',
-                        confirmButtonText: '{{ __("supplier.yes_delete") }}',
-                        cancelButtonText: '{{ __("supplier.No") }}',
-                        reverseButtons: true
+                        confirmButtonText: 'Yes, delete it!',
+                        cancelButtonText: 'Cancel',
+                        reverseButtons: true,
+                        backdrop: true,
+                        allowOutsideClick: false,
+                        allowEscapeKey: true,
+                        allowEnterKey: false
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            fetch(url, {
-                                method: 'DELETE',
-                                headers: {
-                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                    'Content-Type': 'application/json'
-                                }
-                            })
-                                .then(response => response.json())
-                                .then(data => {
-                                    if (data.success) {
-                                        Swal.fire({
-                                            title: '{{ __("supplier.deleted") }}',
-                                            text: '{{ __("supplier.deleted_message") }}',
-                                            icon: 'success',
-                                            confirmButtonColor: '#4361ee'
-                                        });
+                            // Create form and submit
+                            const form = document.createElement('form');
+                            form.method = 'POST';
+                            form.action = url;
 
-                                        // Fade out and remove the row
-                                        const row = button.closest('tr');
-                                        row.style.opacity = 0;
-                                        setTimeout(() => row.remove(), 500);
-                                    }
-                                })
-                                .catch(error => {
-                                    Swal.fire({
-                                        title: '{{ __("supplier.Error") }}',
-                                        text: '{{ __("supplier.Delete_Error") }}',
-                                        icon: 'error',
-                                        confirmButtonColor: '#4361ee'
-                                    });
-                                });
+                            const csrfToken = document.createElement('input');
+                            csrfToken.type = 'hidden';
+                            csrfToken.name = '_token';
+                            csrfToken.value = '{{ csrf_token() }}';
+
+                            const methodField = document.createElement('input');
+                            methodField.type = 'hidden';
+                            methodField.name = '_method';
+                            methodField.value = 'DELETE';
+
+                            form.appendChild(csrfToken);
+                            form.appendChild(methodField);
+                            document.body.appendChild(form);
+                            form.submit();
                         }
                     });
                 });
             });
-
-            // Enhance pagination styling
-            const pagination = document.querySelector('.pagination');
-            if (pagination) {
-                pagination.classList.add('pagination');
-                pagination.querySelectorAll('li').forEach(li => {
-                    li.classList.add('page-item');
-                    const link = li.querySelector('a, span');
-                    if (link) {
-                        link.classList.add('page-link');
-                        if (li.classList.contains('active')) {
-                            link.classList.add('active');
-                        }
-                        if (li.classList.contains('disabled')) {
-                            link.classList.add('disabled');
-                        }
-                    }
-                });
-            }
         });
-
-        function filterSuppliers() { // Nama fungsi diperbaiki
-            const searchText = document.getElementById('searchInput').value.toLowerCase();
-
-            document.querySelectorAll('.suppliers-table tbody tr').forEach(row => {
-                if (row.querySelector('.empty-state')) return;
-
-                const name = row.querySelector('.supplier-name').textContent.toLowerCase();
-                const email = row.querySelector('.supplier-email').textContent.toLowerCase();
-                const phone = row.querySelector('.supplier-phone').textContent.toLowerCase();
-                const address = row.querySelector('.supplier-address').textContent.toLowerCase();
-
-                const nameMatch = name.includes(searchText);
-                const emailMatch = email.includes(searchText);
-                const phoneMatch = phone.includes(searchText);
-                const addressMatch = address.includes(searchText);
-
-                row.style.display = (nameMatch || emailMatch || phoneMatch || addressMatch) ? '' : 'none';
-            });
-        }
     </script>
 @endsection

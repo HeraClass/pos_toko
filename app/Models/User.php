@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasRoles;
     /**
      * The attributes that are mass assignable.
      *
@@ -40,18 +41,12 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'password' => 'hashed',
     ];
 
     public function cart()
     {
         return $this->belongsToMany(Product::class, 'user_cart')->withPivot('quantity');
-    }
-
-    public function purchaseCart(): BelongsToMany
-    {
-        return $this->belongsToMany(Product::class, 'purchase_cart')
-            ->withPivot('quantity')
-            ->withTimestamps();
     }
 
     public function getFullname()
@@ -62,5 +57,10 @@ class User extends Authenticatable
     public function getAvatar()
     {
         return 'https://www.gravatar.com/avatar/' . md5($this->email);
+    }
+
+    public function adjustments()
+    {
+        return $this->hasMany(Adjustment::class);
     }
 }

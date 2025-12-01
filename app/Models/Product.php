@@ -35,7 +35,7 @@ class Product extends Model
     public function suppliers()
     {
         return $this->belongsToMany(Supplier::class, 'product_supplier')
-                    ->withTimestamps();
+            ->withTimestamps();
     }
 
     /**
@@ -47,5 +47,10 @@ class Product extends Model
             return Storage::url($this->image);
         }
         return asset('images/img-placeholder.jpg');
+    }
+
+    public function adjustments()
+    {
+        return $this->hasMany(Adjustment::class);
     }
 }

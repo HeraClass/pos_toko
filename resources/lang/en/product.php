@@ -63,6 +63,7 @@ return [
     'Show_Product_Name' => 'Show Product Name',
     'Select_All_Products' => 'Select All Products',
     'No_Products_Selected' => 'No Products Selected',
+    'No_Products_Found' => 'No Products Found',
     'Preview' => 'Preview',
     'Print_Barcode' => 'Print Barcode',
     'Small' => 'Small',

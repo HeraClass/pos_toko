@@ -11,4 +11,16 @@ class Payment extends Model
         'order_id',
         'user_id',
     ];
+
+    // relationship user
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    // Relationship dengan order
+    public function order()
+    {
+        return $this->belongsTo(Order::class);
+    }
 }

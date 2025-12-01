@@ -26,12 +26,17 @@ class Order extends Model
         return $this->belongsTo(Customer::class);
     }
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function getCustomerName()
     {
         if ($this->customer) {
             return $this->customer->first_name . ' ' . $this->customer->last_name;
         }
-        return __('customer.no_name');
+        return 'Walk-in Customer'; // Fallback untuk customer yang tidak terdaftar
     }
 
     public function total()

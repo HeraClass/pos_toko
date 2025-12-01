@@ -62,6 +62,7 @@ return [
     'Show_Product_Name' => 'Tampilkan Nama Produk',
     'Select_All_Products' => 'Pilih Semua Produk',
     'No_Products_Selected' => 'Tidak Ada Produk yang Dipilih',
+    'No_Products_Found' => 'Tidak Ada Produk Ditemukan',
     'Preview' => 'Pratinjau',
     'Print_Barcode' => 'Cetak Barcode',
     'Small' => 'Kecil',

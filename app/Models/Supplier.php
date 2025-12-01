@@ -20,6 +20,11 @@ class Supplier extends Model
         'avatar'
     ];
 
+    public function purchases()
+    {
+        return $this->hasMany(Purchase::class);
+    }
+
     /**
      * Relasi many-to-many dengan Product
      */

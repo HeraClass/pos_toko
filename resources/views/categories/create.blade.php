@@ -101,7 +101,7 @@
 
         .form-actions {
             display: flex;
-            gap: 1rem;
+            gap: 0.5rem;
             justify-content: flex-end;
             margin-top: 2rem;
             padding-top: 1.5rem;
@@ -109,7 +109,7 @@
         }
 
         .btn {
-            padding: 0.75rem 1.5rem;
+            padding: 0.5rem 1.5rem;
             border-radius: 8px;
             font-weight: 500;
             font-size: 0.9rem;
@@ -118,10 +118,9 @@
             cursor: pointer;
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
-            min-height: 48px;
+            gap: 0.375rem;
             text-decoration: none;
-            justify-content: center;
+            min-height: 40px;
         }
 
         .btn-primary {
@@ -186,6 +185,7 @@
                 opacity: 0;
                 transform: translateY(20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -216,6 +216,7 @@
             from {
                 transform: rotate(0deg);
             }
+
             to {
                 transform: rotate(360deg);
             }
@@ -263,9 +264,8 @@
     <div class="category-form-container">
         <div class="card">
             <div class="card-body">
-                <form action="{{ isset($category) ? route('categories.update', $category) : route('categories.store') }}" 
-                      method="POST" 
-                      id="categoryForm">
+                <form action="{{ isset($category) ? route('categories.update', $category) : route('categories.store') }}"
+                    method="POST" id="categoryForm">
                     @csrf
                     @if(isset($category))
                         @method('PUT')
@@ -275,14 +275,9 @@
                         <div class="form-grid">
                             <div class="form-group">
                                 <label for="name" class="form-label required-field">{{ __('category.Name') }}</label>
-                                <input type="text" 
-                                       name="name" 
-                                       class="form-control @error('name') is-invalid @enderror" 
-                                       id="name"
-                                       placeholder="{{ __('category.Name') }}" 
-                                       value="{{ old('name', $category->name ?? '') }}"
-                                       required
-                                       maxlength="255">
+                                <input type="text" name="name" class="form-control @error('name') is-invalid @enderror"
+                                    id="name" placeholder="{{ __('category.Name') }}"
+                                    value="{{ old('name', $category->name ?? '') }}" required maxlength="255">
                                 @error('name')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -307,12 +302,9 @@
                     <div class="form-section">
                         <div class="form-group">
                             <label for="description" class="form-label">{{ __('category.Description') }}</label>
-                            <textarea name="description" 
-                                      class="form-control @error('description') is-invalid @enderror" 
-                                      id="description" 
-                                      placeholder="{{ __('category.Description') }}" 
-                                      rows="4"
-                                      maxlength="500">{{ old('description', $category->description ?? '') }}</textarea>
+                            <textarea name="description" class="form-control @error('description') is-invalid @enderror"
+                                id="description" placeholder="{{ __('category.Description') }}" rows="4"
+                                maxlength="500">{{ old('description', $category->description ?? '') }}</textarea>
                             @error('description')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -344,11 +336,11 @@
                     @endif
 
                     <div class="form-actions">
-                        <a href="{{ route('categories.index') }}" class="btn btn-danger">
-                            <i class="fas fa-times"></i> {{ __('common.Cancel') }}
+                        <a href="{{ route('categories.index') }}" class="btn btn-secondary">
+                            {{ __('common.Cancel') }}
                         </a>
                         <button type="submit" class="btn btn-primary" id="submitBtn">
-                            <i class="fas fa-plus"></i> {{ __('common.Create') }}
+                            {{ __('common.Create') }}
                         </button>
                     </div>
                 </form>
@@ -358,35 +350,36 @@
 
     <!-- Delete Confirmation Modal -->
     @if(isset($category))
-    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deleteModalLabel">{{ __('category.Delete_Category') }}</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <p>{{ __('category.Delete_Confirmation_Message') }}</p>
-                    <p><strong id="categoryNameToDelete"></strong></p>
-                    <p class="text-danger"><small>{{ __('category.Delete_Warning') }}</small></p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                        <i class="fas fa-times"></i> {{ __('common.Cancel') }}
-                    </button>
-                    <form action="{{ route('categories.destroy', $category) }}" method="POST" id="deleteForm">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-danger">
-                            <i class="fas fa-trash"></i> {{ __('common.Delete') }}
+        <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteModalLabel">{{ __('category.Delete_Category') }}</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
                         </button>
-                    </form>
+                    </div>
+                    <div class="modal-body">
+                        <p>{{ __('category.Delete_Confirmation_Message') }}</p>
+                        <p><strong id="categoryNameToDelete"></strong></p>
+                        <p class="text-danger"><small>{{ __('category.Delete_Warning') }}</small></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            <i class="fas fa-times"></i> {{ __('common.Cancel') }}
+                        </button>
+                        <form action="{{ route('categories.destroy', $category) }}" method="POST" id="deleteForm">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash"></i> {{ __('common.Delete') }}
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
     @endif
 @endsection
 
@@ -397,7 +390,7 @@
             const nameInput = document.getElementById('name');
             const nameCurrent = document.getElementById('nameCurrent');
             const nameCount = document.getElementById('nameCount');
-            
+
             // Character count for description
             const descriptionInput = document.getElementById('description');
             const descriptionCurrent = document.getElementById('descriptionCurrent');
@@ -407,7 +400,7 @@
             function updateCharacterCount(input, currentElement, countElement, maxLength) {
                 const currentLength = input.value.length;
                 currentElement.textContent = currentLength;
-                
+
                 if (currentLength > maxLength * 0.8) {
                     countElement.classList.add('warning');
                 } else {
@@ -420,18 +413,18 @@
             updateCharacterCount(descriptionInput, descriptionCurrent, descriptionCount, 500);
 
             // Add event listeners for real-time updates
-            nameInput.addEventListener('input', function() {
+            nameInput.addEventListener('input', function () {
                 updateCharacterCount(this, nameCurrent, nameCount, 255);
             });
 
-            descriptionInput.addEventListener('input', function() {
+            descriptionInput.addEventListener('input', function () {
                 updateCharacterCount(this, descriptionCurrent, descriptionCount, 500);
             });
 
             // Auto-generate slug from name
-            nameInput.addEventListener('blur', function() {
+            nameInput.addEventListener('blur', function () {
                 if (!this.value.trim()) return;
-                
+
                 // Simple slug generation - you might want to enhance this
                 const slug = this.value
                     .toLowerCase()
@@ -439,7 +432,7 @@
                     .replace(/[^a-z0-9 -]/g, '')
                     .replace(/\s+/g, '-')
                     .replace(/-+/g, '-');
-                
+
                 // If you have a slug field, you can set it here
                 // document.getElementById('slug').value = slug;
             });
@@ -452,9 +445,9 @@
                 // Add loading state to submit button
                 submitBtn.classList.add('btn-loading');
                 submitBtn.disabled = true;
-                submitBtn.innerHTML = '<i class="fas fa-spinner"></i> ' + 
-                    ({{ isset($category) ? 'true' : 'false' }} ? 
-                     '{{ __("common.Updating") }}' : '{{ __("common.Creating") }}');
+                submitBtn.innerHTML = '<i class="fas fa-spinner"></i> ' +
+                    ({{ isset($category) ? 'true' : 'false' }} ?
+                        '{{ __("common.Updating") }}' : '{{ __("common.Creating") }}');
             });
 
             // Delete category functionality
@@ -485,9 +478,9 @@
                 if (invalidFields.length > 0) {
                     e.preventDefault();
                     // Scroll to first invalid field
-                    invalidFields[0].scrollIntoView({ 
-                        behavior: 'smooth', 
-                        block: 'center' 
+                    invalidFields[0].scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
                     });
                 }
             });

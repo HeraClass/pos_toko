@@ -102,18 +102,18 @@
             font-size: 0.8rem;
             margin-top: 0.25rem;
         }
-        
+
         .form-actions {
             display: flex;
-            gap: 1rem;
+            gap: 0.5rem;
             justify-content: flex-end;
             margin-top: 2rem;
             padding-top: 1.5rem;
             border-top: 1px solid #e2e8f0;
         }
-        
+
         .btn {
-            padding: 0.75rem 1.5rem;
+            padding: 0.5rem 1.5rem;
             border-radius: 8px;
             font-weight: 500;
             font-size: 0.9rem;
@@ -122,8 +122,9 @@
             cursor: pointer;
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
-            min-height: 48px;
+            gap: 0.375rem;
+            text-decoration: none;
+            min-height: 40px;
         }
         
         .btn-primary {
@@ -398,10 +399,10 @@
                     
                     <div class="form-actions">
                         <a href="{{ route('home') }}" class="btn btn-secondary">
-                            <i class="fas fa-times"></i> {{ __('common.Cancel') }}
+                            {{ __('common.Cancel') }}
                         </a>
                         <button type="submit" class="btn btn-primary" id="submitBtn">
-                            <i class="fas fa-save"></i> {{ __('settings.Update_Settings') }}
+                            {{ __('settings.Update_Settings') }}
                         </button>
                     </div>
                 </form>

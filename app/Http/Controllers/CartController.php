@@ -7,6 +7,15 @@ use Illuminate\Http\Request;
 
 class CartController extends Controller
 {
+    function __construct()
+    {
+        $this->middleware('permission:cart.view', ['only' => ['index']]);
+        $this->middleware('permission:cart.create', ['only' => ['store']]);
+        $this->middleware('permission:cart.edit', ['only' => ['changeQty']]);
+        $this->middleware('permission:cart.delete', ['only' => ['delete']]);
+        $this->middleware('permission:cart.delete', ['only' => ['empty']]);
+    }
+
     public function index(Request $request)
     {
         if ($request->wantsJson()) {

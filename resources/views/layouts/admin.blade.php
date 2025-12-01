@@ -53,6 +53,7 @@
         .app-wrapper {
             display: flex;
             min-height: 100vh;
+            position: relative;
         }
 
         /* Main Content */
@@ -62,12 +63,20 @@
             transition: var(--transition);
             display: flex;
             flex-direction: column;
+            min-width: 0;
+            width: calc(100% - var(--sidebar-width));
+        }
+
+        .app-main.sidebar-collapsed {
+            margin-left: 70px;
+            width: calc(100% - 70px);
         }
 
         /* Content */
         .app-content {
             padding: var(--content-padding);
             flex: 1;
+            overflow-x: auto;
         }
 
         .content-header {
@@ -140,25 +149,30 @@
             margin-right: 0.5rem;
         }
 
+        /* Mobile overlay */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
         /* Responsive */
         @media (max-width: 992px) {
             .app-main {
                 margin-left: 0;
-            }
-
-            .overlay {
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: rgba(0, 0, 0, 0.5);
-                z-index: 999;
-                display: none;
-            }
-
-            .overlay.active {
-                display: block;
+                width: 100%;
             }
         }
 
@@ -245,28 +259,56 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Toggle sidebar on mobile
-            const toggleSidebar = document.querySelector('.sidebar-toggle');
             const sidebar = document.querySelector('.app-sidebar');
+            const appMain = document.querySelector('.app-main');
             const overlay = document.querySelector('.overlay');
 
-            if (toggleSidebar && sidebar) {
-                toggleSidebar.addEventListener('click', function () {
+            // Listen for toggle event from navbar
+            document.addEventListener('toggleSidebar', function () {
+                const isMobile = window.innerWidth <= 992;
+
+                if (isMobile) {
+                    // Mobile behavior - slide sidebar
                     sidebar.classList.toggle('mobile-open');
                     overlay.classList.toggle('active');
-                });
-            }
+                } else {
+                    // Desktop behavior - collapse sidebar
+                    sidebar.classList.toggle('collapsed');
+                    appMain.classList.toggle('sidebar-collapsed');
+                }
+            });
 
+            // Close sidebar when clicking overlay
             if (overlay) {
                 overlay.addEventListener('click', function () {
                     sidebar.classList.remove('mobile-open');
                     overlay.classList.remove('active');
                 });
             }
+
+            // Handle window resize
+            let resizeTimer;
+            window.addEventListener('resize', function () {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(function () {
+                    const isMobile = window.innerWidth <= 992;
+
+                    if (!isMobile) {
+                        // Remove mobile classes when switching to desktop
+                        sidebar.classList.remove('mobile-open');
+                        overlay.classList.remove('active');
+                    } else {
+                        // Remove desktop collapse when switching to mobile
+                        sidebar.classList.remove('collapsed');
+                        appMain.classList.remove('sidebar-collapsed');
+                    }
+                }, 250);
+            });
         });
     </script>
 
     @yield('js')
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     @yield('model')
 </body>
 

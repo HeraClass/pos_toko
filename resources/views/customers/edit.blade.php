@@ -154,7 +154,7 @@
 
         .form-actions {
             display: flex;
-            gap: 1rem;
+            gap: 0.5rem;
             justify-content: flex-end;
             margin-top: 2rem;
             padding-top: 1.5rem;
@@ -162,7 +162,7 @@
         }
 
         .btn {
-            padding: 0.75rem 1.5rem;
+            padding: 0.5rem 1.5rem;
             border-radius: 8px;
             font-weight: 500;
             font-size: 0.9rem;
@@ -171,8 +171,9 @@
             cursor: pointer;
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
-            min-height: 48px;
+            gap: 0.375rem;
+            text-decoration: none;
+            min-height: 40px;
         }
 
         .btn-primary {
@@ -453,11 +454,11 @@
                     </div>
 
                     <div class="form-actions">
-                        <a href="{{ route('customers.index') }}" class="btn btn-danger">
-                            <i class="fas fa-times"></i> {{ __('common.Cancel') }}
+                        <a href="{{ route('customers.index') }}" class="btn btn-secondary">
+                            {{ __('common.Cancel') }}
                         </a>
                         <button type="submit" class="btn btn-primary" id="submitBtn">
-                            <i class="fas fa-save"></i> {{ __('common.Update') }}
+                            {{ __('common.Update') }}
                         </button>
                     </div>
                 </form>

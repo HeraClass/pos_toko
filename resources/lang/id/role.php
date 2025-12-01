@@ -1,0 +1,28 @@
+<?php
+
+return [
+    'Role_List' => 'Daftar Role',
+    'Add_Role' => 'Tambah Role',
+    'Edit_Role' => 'Edit Role',
+    'Search' => 'Cari',
+    'Reset' => 'Reset',
+    'No_Roles_Found' => 'Role Tidak Ditemukan',
+    'Get_Started' => 'Mulai dengan membuat role pertama Anda.',
+    'Create_Role' => 'Buat Role',
+    'ID' => 'ID',
+    'Name' => 'Nama',
+    'Permissions' => 'Permissions',
+    'Created_At' => 'Dibuat Pada',
+    'Actions' => 'Aksi',
+    'Edit' => 'Edit',
+    'Delete' => 'Hapus',
+    'No_Action' => 'Tidak Ada Aksi',
+    'No_Permissions' => 'Tidak Ada Permissions',
+    'Confirm_Delete_Title' => 'Apakah Anda yakin?',
+    'Confirm_Delete_Text' => 'Anda akan menghapus role: :name',
+    'Yes_Delete_It' => 'Ya, hapus!',
+    'Cancel' => 'Batal',
+    'Role_Name' => 'Nama Role',
+    'Assign_Permissions' => 'Tetapkan Permissions',
+    'Enter_Role_Name' => 'Masukkan nama role',
+];

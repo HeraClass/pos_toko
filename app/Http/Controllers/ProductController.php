@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\ExportableTrait;
 use App\Http\Requests\ProductStoreRequest;
 use App\Http\Requests\ProductUpdateRequest;
 use App\Http\Resources\ProductResource;
@@ -12,6 +13,8 @@ use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
+    use ExportableTrait;
+
     /**
      * Display a listing of the resource.
      *
@@ -19,12 +22,43 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        $products = new Product();
-        if ($request->search) {
-            $products = $products->where('name', 'LIKE', "%{$request->search}%");
-        }
-        $products = $products->with('category')->latest()->paginate(10);
+        $query = Product::with('category');
 
+        // Search functionality
+        if ($request->search) {
+            $query->where('name', 'LIKE', "%{$request->search}%")
+                ->orWhere('barcode', 'LIKE', "%{$request->search}%");
+        }
+
+        // Status filter
+        if ($request->status && in_array($request->status, ['active', 'inactive'])) {
+            $statusValue = $request->status === 'active' ? 1 : 0;
+            $query->where('status', $statusValue);
+        }
+
+        // Category filter
+        if ($request->category_id) {
+            $query->where('category_id', $request->category_id);
+        }
+
+        // Sorting functionality
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortOrder = $request->get('sort_order', 'desc');
+
+        // Validate sort columns to prevent SQL injection
+        $allowedSortColumns = ['id', 'name', 'barcode', 'price', 'quantity', 'created_at'];
+        if (!in_array($sortBy, $allowedSortColumns)) {
+            $sortBy = 'created_at';
+        }
+
+        $allowedSortOrders = ['asc', 'desc'];
+        if (!in_array($sortOrder, $allowedSortOrders)) {
+            $sortOrder = 'desc';
+        }
+
+        $query->orderBy($sortBy, $sortOrder);
+
+        $products = $query->paginate(10)->appends($request->query());
         $categories = Category::all();
 
         if (request()->wantsJson()) {
@@ -43,6 +77,113 @@ class ProductController extends Controller
         ]);
     }
 
+    /**
+     * Export data to PDF
+     */
+    public function exportPdf(Request $request)
+    {
+        // Handle both POST and GET requests
+        $filters = $request->isMethod('post') ? $request->all() : $request->query();
+
+        $products = $this->getExportData(new Request($filters));
+
+        $columns = [
+            'id' => 'ID',
+            'name' => 'Nama Produk',
+            'barcode' => 'Barcode',
+            'category_name' => 'Kategori',
+            'price' => 'Harga',
+            'quantity' => 'Stok',
+            'status' => 'Status',
+            'created_at' => 'Dibuat Pada'
+        ];
+
+        return $this->exportToPdf($products, $columns, 'Laporan Produk');
+    }
+
+    /**
+     * Export data to CSV
+     */
+    public function exportCsv(Request $request)
+    {
+        // Handle both POST and GET requests
+        $filters = $request->isMethod('post') ? $request->all() : $request->query();
+
+        $products = $this->getExportData(new Request($filters));
+
+        $columns = [
+            'id' => 'ID',
+            'name' => 'Nama Produk',
+            'barcode' => 'Barcode',
+            'category_name' => 'Kategori',
+            'price' => 'Harga',
+            'quantity' => 'Stok',
+            'status' => 'Status',
+            'created_at' => 'Dibuat Pada'
+        ];
+
+        return $this->exportToCsv($products, $columns, 'Laporan Produk');
+    }
+
+    /**
+     * Get data for export (reuse the index query logic)
+     */
+    private function getExportData(Request $request)
+    {
+        $query = Product::with('category');
+
+        // Search functionality
+        if ($request->search) {
+            $query->where('name', 'LIKE', "%{$request->search}%")
+                ->orWhere('barcode', 'LIKE', "%{$request->search}%");
+        }
+
+        // Status filter
+        if ($request->status && in_array($request->status, ['active', 'inactive'])) {
+            $statusValue = $request->status === 'active' ? 1 : 0;
+            $query->where('status', $statusValue);
+        }
+
+        // Category filter
+        if ($request->category_id) {
+            $query->where('category_id', $request->category_id);
+        }
+
+        // Sorting functionality
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortOrder = $request->get('sort_order', 'desc');
+
+        // Validate sort columns to prevent SQL injection
+        $allowedSortColumns = ['id', 'name', 'barcode', 'price', 'quantity', 'created_at'];
+        if (!in_array($sortBy, $allowedSortColumns)) {
+            $sortBy = 'created_at';
+        }
+
+        $allowedSortOrders = ['asc', 'desc'];
+        if (!in_array($sortOrder, $allowedSortOrders)) {
+            $sortOrder = 'desc';
+        }
+
+        $query->orderBy($sortBy, $sortOrder);
+
+        // Get all data (no pagination for export)
+        $products = $query->get();
+
+        // Transform data untuk export
+        return $products->map(function ($product) {
+            return [
+                'id' => $product->id,
+                'name' => $product->name,
+                'barcode' => $product->barcode ?? '-',
+                'category_name' => $product->category ? $product->category->name : 'Tidak Ada Kategori',
+                'price' => $product->price,
+                'quantity' => $product->quantity,
+                'status' => $product->status ? 'Aktif' : 'Tidak Aktif',
+                'created_at' => $product->created_at->format('d-m-Y H:i')
+            ];
+        });
+    }
+    
     /**
      * Show the form for creating a new resource.
      *

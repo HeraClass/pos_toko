@@ -1,0 +1,28 @@
+<?php
+
+return [
+    'Role_List' => 'Role List',
+    'Add_Role' => 'Add Role',
+    'Edit_Role' => 'Edit Role',
+    'Search' => 'Search',
+    'Reset' => 'Reset',
+    'No_Roles_Found' => 'No Roles Found',
+    'Get_Started' => 'Get started by creating your first role.',
+    'Create_Role' => 'Create Role',
+    'ID' => 'ID',
+    'Name' => 'Name',
+    'Permissions' => 'Permissions',
+    'Created_At' => 'Created At',
+    'Actions' => 'Actions',
+    'Edit' => 'Edit',
+    'Delete' => 'Delete',
+    'No_Action' => 'No Action',
+    'No_Permissions' => 'No Permissions',
+    'Confirm_Delete_Title' => 'Are you sure?',
+    'Confirm_Delete_Text' => 'You are about to delete role: :name',
+    'Yes_Delete_It' => 'Yes, delete it!',
+    'Cancel' => 'Cancel',
+    'Role_Name' => 'Role Name',
+    'Assign_Permissions' => 'Assign Permissions',
+    'Enter_Role_Name' => 'Enter role name',
+];

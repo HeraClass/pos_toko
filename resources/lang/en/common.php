@@ -24,6 +24,7 @@ return [
     'Updating'      => 'Updating',
     'Cancel'        => 'Cancel',
     'Created_At'    => 'Created At',
+    'Updated_At' => 'Updated At',
     'Actions'       => 'Actions',
     'Active'        => 'Active',
     'Inactive'      => 'Inactive',

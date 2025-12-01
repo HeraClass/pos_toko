@@ -17,6 +17,12 @@ class Customer extends Model
         'user_id',
     ];
 
+    // Relationship dengan orders
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+    
     public function getAvatarUrl()
     {
         return Storage::url($this->avatar);

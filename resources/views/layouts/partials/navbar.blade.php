@@ -84,7 +84,7 @@
             box-shadow: var(--navbar-shadow);
             position: sticky;
             top: 0;
-            z-index: 1000;
+            z-index: 1001;
             width: 100%;
         }
 
