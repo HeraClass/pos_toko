@@ -106,6 +106,18 @@ class OrderController extends Controller
         return view('orders.index', compact('orders', 'total', 'receivedAmount'));
     }
 
+    public function getInvoiceModal($id)
+    {
+        $order = Order::with(['items.product', 'payments', 'customer'])->findOrFail($id);
+        return view('orders.invoice-modal', compact('order'));
+    }
+
+    public function printInvoice($id)
+    {
+        $order = Order::with(['items.product', 'payments', 'customer'])->findOrFail($id);
+        return view('orders.invoice-print', compact('order'));
+    }
+
     /**
      * Get data for export (reuse the index query logic)
      */

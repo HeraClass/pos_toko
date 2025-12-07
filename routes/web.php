@@ -43,6 +43,12 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::get('/customers/export/pdf', [CustomerController::class, 'exportPdf'])->name('customers.export.pdf');
     Route::get('/customers/export/csv', [CustomerController::class, 'exportCsv'])->name('customers.export.csv');
 
+    Route::get('/orders/{id}/invoice-modal', [OrderController::class, 'getInvoiceModal'])
+        ->name('orders.invoice.modal')
+        ->middleware('permission:orders.view');
+    Route::get('/orders/{id}/invoice-print', [OrderController::class, 'printInvoice'])
+        ->name('orders.invoice.print')
+        ->middleware('permission:orders.view');
     Route::resource('orders', OrderController::class);
     Route::get('orders/export/pdf', [OrderController::class, 'exportPdf'])->name('orders.export.pdf');
     Route::get('orders/export/csv', [OrderController::class, 'exportCsv'])->name('orders.export.csv');

@@ -71,4 +71,5 @@ return [
     'Large' => 'Large',
     'deleted' => 'Delete Success',
     'deleted_message' => 'Products Has Been Deleted',
+    'Current_Stock' => 'Current Stock',
 ];

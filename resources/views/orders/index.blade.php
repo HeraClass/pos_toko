@@ -936,12 +936,6 @@
                                                         @can('orders.view')
                                                             <button class="btn btn-info btn-sm btnShowInvoice" data-toggle="modal"
                                                                 data-target="#modalInvoice" data-order-id="{{ $order->id }}"
-                                                                data-customer-name="{{ $order->getCustomerName() }}"
-                                                                data-total="{{ $order->total() }}"
-                                                                data-received="{{ $order->receivedAmount() }}"
-                                                                data-items="{{ json_encode($order->items) }}"
-                                                                data-created-at="{{ $order->created_at }}"
-                                                                data-payment="{{ isset($order->payments) && count($order->payments) > 0 ? $order->payments[0]->amount : 0 }}"
                                                                 title="View Invoice">
                                                                 <i class="fas fa-eye"></i>
                                                                 <span class="d-none d-md-inline">View</span>
@@ -961,15 +955,13 @@
                                                         @endcan
 
                                                         @can('orders.delete')
-    <button class="btn btn-danger btn-sm btnDeleteOrder" 
-        data-order-id="{{ $order->id }}"
-        data-order-number="#{{ $order->id }}"
-        data-customer-name="{{ $order->getCustomerName() }}"
-        title="Delete Order">
-        <i class="fas fa-trash"></i>
-        <span class="d-none d-md-inline">Delete</span>
-    </button>
-@endcan
+                                                            <button class="btn btn-danger btn-sm btnDeleteOrder"
+                                                                data-order-id="{{ $order->id }}" data-order-number="#{{ $order->id }}"
+                                                                data-customer-name="{{ $order->getCustomerName() }}" title="Delete Order">
+                                                                <i class="fas fa-trash"></i>
+                                                                <span class="d-none d-md-inline">Delete</span>
+                                                            </button>
+                                                        @endcan
                                                     </div>
                                                 @else
                                                     <span class="badge bg-secondary">No Action</span>
@@ -1029,16 +1021,24 @@
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalInvoiceLabel">Invoice</h5>
+                    <h5 class="modal-title" id="modalInvoiceLabel">
+                        <i class="fas fa-file-invoice"></i> Invoice Details
+                    </h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body">
-                    <!-- Invoice content will be loaded here by JavaScript -->
+                <div class="modal-body" id="invoiceModalBody">
+                    <!-- Invoice content akan di-load di sini via AJAX -->
+                    <div class="text-center py-5">
+                        <i class="fas fa-spinner fa-spin fa-3x text-primary"></i>
+                        <p class="mt-3">Loading invoice...</p>
+                    </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        <i class="fas fa-times"></i> Close
+                    </button>
                     <button type="button" class="btn btn-primary" id="btnPrintInvoice">
                         <i class="fas fa-print"></i> Print Invoice
                     </button>
@@ -1093,14 +1093,6 @@
             const statusFilter = document.getElementById('statusFilter');
             const resetButton = document.getElementById('resetButton');
 
-            // Delete Modal Elements
-            const deleteModal = document.getElementById('deleteModal');
-            const deleteOrderForm = document.getElementById('deleteOrderForm');
-            const deleteOrderNumber = document.getElementById('deleteOrderNumber');
-            const deleteCustomerName = document.getElementById('deleteCustomerName');
-            const cancelDelete = document.getElementById('cancelDelete');
-            const confirmDelete = document.getElementById('confirmDelete');
-
             // Function untuk update URL dengan filters
             function updateURL() {
                 const params = new URLSearchParams();
@@ -1143,65 +1135,53 @@
             statusFilter.addEventListener('change', updateURL);
 
             // Delete Order Functionality dengan SweetAlert2
-document.querySelectorAll('.btnDeleteOrder').forEach(button => {
-    button.addEventListener('click', function() {
-        const orderId = this.dataset.orderId;
-        const orderNumber = this.dataset.orderNumber;
-        const customerName = this.dataset.customerName;
+            document.querySelectorAll('.btnDeleteOrder').forEach(button => {
+                button.addEventListener('click', function () {
+                    const orderId = this.dataset.orderId;
+                    const orderNumber = this.dataset.orderNumber;
+                    const customerName = this.dataset.customerName;
 
-        Swal.fire({
-            title: 'Delete Order?',
-            html: `
-                <div style="text-align: center;">
-                    <p style="margin-bottom: 10px;">You are about to delete the following order:</p>
-                    <div style="background: #f8f9fa; padding: 12px; border-radius: 6px; margin: 10px 0;">
-                        <strong>Order ID:</strong> ${orderNumber}<br>
-                        <strong>Customer:</strong> ${customerName}
-                    </div>
-                    <p style="margin-top: 10px;">
-                        This action cannot be undone!
-                    </p>
-                </div>
-            `,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#e53e3e',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Yes, delete it!',
-            cancelButtonText: 'Cancel',
-            reverseButtons: true,
-            customClass: {
-                popup: 'sweetalert-custom',
-                title: 'sweetalert-title',
-                htmlContainer: 'sweetalert-content'
-            }
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Create form untuk submit delete
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = `/admin/orders/${orderId}`;
-                form.innerHTML = `
-                    @csrf
-                    @method('DELETE')
-                `;
-                document.body.appendChild(form);
-                form.submit();
-            }
-        });
-    });
-});
-
-            // Close modal when cancel button is clicked
-            cancelDelete.addEventListener('click', function () {
-                deleteModal.style.display = 'none';
-            });
-
-            // Close modal when clicking outside
-            deleteModal.addEventListener('click', function (e) {
-                if (e.target === deleteModal) {
-                    deleteModal.style.display = 'none';
-                }
+                    Swal.fire({
+                        title: 'Delete Order?',
+                        html: `
+                            <div style="text-align: center;">
+                                <p style="margin-bottom: 10px;">You are about to delete the following order:</p>
+                                <div style="background: #f8f9fa; padding: 12px; border-radius: 6px; margin: 10px 0;">
+                                    <strong>Order ID:</strong> ${orderNumber}<br>
+                                    <strong>Customer:</strong> ${customerName}
+                                </div>
+                                <p style="margin-top: 10px;">
+                                    This action cannot be undone!
+                                </p>
+                            </div>
+                        `,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#e53e3e',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'Yes, delete it!',
+                        cancelButtonText: 'Cancel',
+                        reverseButtons: true,
+                        customClass: {
+                            popup: 'sweetalert-custom',
+                            title: 'sweetalert-title',
+                            htmlContainer: 'sweetalert-content'
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Create form untuk submit delete
+                            const form = document.createElement('form');
+                            form.method = 'POST';
+                            form.action = `/admin/orders/${orderId}`;
+                            form.innerHTML = `
+                                @csrf
+                                @method('DELETE')
+                            `;
+                            document.body.appendChild(form);
+                            form.submit();
+                        }
+                    });
+                });
             });
 
             // Add visual indicators untuk current sort
@@ -1269,325 +1249,78 @@ document.querySelectorAll('.btnDeleteOrder').forEach(button => {
                 }
             });
 
-            // Invoice Modal - FIXED VERSION
-            $(document).on('click', '.btnShowInvoice', function (event) {
-                var button = $(event.currentTarget);
-                var orderId = button.data('order-id');
-                var customerName = button.data('customer-name');
-                var totalAmount = button.data('total');
-                var receivedAmount = button.data('received');
-                var createdAt = button.data('created-at');
-                var items = button.data('items');
+            // Invoice Modal - Load via AJAX
+            var currentOrderId = null;
 
-                // Format date and time
-                var orderDate = new Date(createdAt);
-                var formattedDate = orderDate.toLocaleDateString('en-US', {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                });
-                var formattedTime = orderDate.toLocaleTimeString('en-US', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit'
-                });
-
-                // Construct items HTML
-                var itemsHTML = '';
-                if (items) {
-                    items.forEach(function (item, index) {
-                        var productName = item.product && item.product.name ? item.product.name : 'N/A';
-                        var productPrice = item.product && item.product.price ? parseFloat(item.product.price).toFixed(2) : '0.00';
-                        var quantity = item.quantity || 0;
-                        var itemTotal = (parseFloat(productPrice) * quantity).toFixed(2);
-
-                        itemsHTML += `
-                                                                        <tr>
-                                                                            <td>${index + 1}</td>
-                                                                            <td>${productName}</td>
-                                                                            <td>${productName}</td>
-                                                                            <td>{{ config('settings.currency_symbol') }} ${productPrice}</td>
-                                                                            <td>${quantity}</td>
-                                                                            <td>{{ config('settings.currency_symbol') }} ${itemTotal}</td>
-                                                                        </tr>`;
-                    });
-                }
-
-                // Determine status
-                var statusHTML = '';
-                if (receivedAmount == 0) {
-                    statusHTML = '<span class="badge badge-not-paid">Not Paid</span>';
-                } else if (receivedAmount < totalAmount) {
-                    statusHTML = '<span class="badge badge-partial">Partial</span>';
-                } else if (receivedAmount == totalAmount) {
-                    statusHTML = '<span class="badge badge-paid">Paid</span>';
-                } else {
-                    statusHTML = '<span class="badge badge-change">Change</span>';
-                }
-
-                // Update modal content
-                var modalBody = $('#modalInvoice').find('.modal-body');
+            $(document).on('click', '.btnShowInvoice', function(event) {
+                event.preventDefault();
+                
+                var orderId = $(this).data('order-id');
+                currentOrderId = orderId;
+                
+                var modalBody = $('#invoiceModalBody');
+                
+                // Show loading state
                 modalBody.html(`
-                                                                <div class="invoice-container">
-                                                                    <div class="invoice-header">
-                                                                        <h4>Toko Kelontong Pak Dedi</h4>
-                                                                        <p>Point of Sale System</p>
-                                                                    </div>
-
-                                                                    <div class="invoice-info">
-                                                                        <div class="row">
-                                                                            <div class="col-md-6">
-                                                                                <p><strong>Order ID:</strong> ${orderId}</p>
-                                                                                <p><strong>Date:</strong> ${formattedDate}</p>
-                                                                                <p><strong>Time:</strong> ${formattedTime}</p>
-                                                                            </div>
-                                                                            <div class="col-md-6 text-right">
-                                                                                <p><strong>Customer:</strong> ${customerName || 'N/A'}</p>
-                                                                                <p><strong>Status:</strong> ${statusHTML}</p>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <div class="invoice-items">
-                                                                        <table class="table table-bordered">
-                                                                            <thead>
-                                                                                <tr>
-                                                                                    <th>#</th>
-                                                                                    <th>Item</th>
-                                                                                    <th>Description</th>
-                                                                                    <th>Price</th>
-                                                                                    <th>Quantity</th>
-                                                                                    <th>Total</th>
-                                                                                </tr>
-                                                                            </thead>
-                                                                            <tbody>
-                                                                                ${itemsHTML}
-                                                                            </tbody>
-                                                                            <tfoot>
-                                                                                <tr>
-                                                                                    <th colspan="5" class="text-right">Total:</th>
-                                                                                    <th>{{ config('settings.currency_symbol') }} ${parseFloat(totalAmount).toFixed(2)}</th>
-                                                                                </tr>
-                                                                                <tr>
-                                                                                    <th colspan="5" class="text-right">Paid:</th>
-                                                                                    <th>{{ config('settings.currency_symbol') }} ${parseFloat(receivedAmount).toFixed(2)}</th>
-                                                                                </tr>
-                                                                                <tr>
-                                                                                    <th colspan="5" class="text-right">Balance:</th>
-                                                                                    <th>{{ config('settings.currency_symbol') }} ${parseFloat(totalAmount - receivedAmount).toFixed(2)}</th>
-                                                                                </tr>
-                                                                            </tfoot>
-                                                                        </table>
-                                                                    </div>
-
-                                                                    <div class="invoice-footer">
-                                                                        <p class="text-center">Thank You</p>
-                                                                    </div>
-                                                                </div>
-                                                                `);
-
-                // Store current invoice data for printing
-                window.currentInvoiceData = {
-                    orderId: orderId,
-                    customerName: customerName,
-                    totalAmount: totalAmount,
-                    receivedAmount: receivedAmount,
-                    createdAt: createdAt,
-                    formattedDate: formattedDate,
-                    formattedTime: formattedTime,
-                    items: items,
-                    statusHTML: statusHTML,
-                    itemsHTML: itemsHTML
-                };
+                    <div class="text-center py-5">
+                        <i class="fas fa-spinner fa-spin fa-3x text-primary"></i>
+                        <p class="mt-3 text-muted">Loading invoice...</p>
+                    </div>
+                `);
+                
+                // Load invoice via AJAX
+                $.ajax({
+                    url: '/admin/orders/' + orderId + '/invoice-modal',
+                    method: 'GET',
+                    success: function(response) {
+                        modalBody.html(response);
+                        console.log('Invoice loaded successfully for Order #' + orderId);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error loading invoice:', error);
+                        console.log('Status:', xhr.status);
+                        console.log('Response:', xhr.responseText);
+                        
+                        modalBody.html(`
+                            <div class="alert alert-danger m-4">
+                                <h5 class="alert-heading">
+                                    <i class="fas fa-exclamation-triangle"></i> 
+                                    Failed to Load Invoice
+                                </h5>
+                                <p class="mb-0">
+                                    Unable to load invoice data. Please try again.
+                                </p>
+                                <hr>
+                                <small class="text-muted">Status: ${xhr.status}</small><br>
+                                <small class="text-muted">Error: ${error}</small><br>
+                                <small class="text-muted">Response: ${xhr.responseText}</small>
+                            </div>
+                        `);
+                    }
+                });
             });
 
-            // Print Invoice Button
-            $(document).on('click', '#btnPrintInvoice', function () {
-                printInvoice();
+            // Print Invoice Function
+            $(document).on('click', '#btnPrintInvoice', function() {
+                if (!currentOrderId) {
+                    alert('No invoice selected');
+                    return;
+                }
+                
+                var printUrl = '/admin/orders/' + currentOrderId + '/invoice-print';
+                window.open(printUrl, '_blank');
             });
 
-            // Function to print only the invoice
-            function printInvoice() {
-                // Create a new window for printing
-                var printWindow = window.open('', '_blank');
-
-                // Get the invoice data
-                var data = window.currentInvoiceData;
-
-                // Create print content
-                var printContent = `
-                                                                <!DOCTYPE html>
-                                                                <html>
-                                                                <head>
-                                                                    <title>Invoice #${data.orderId}</title>
-                                                                    <style>
-                                                                        body {
-                                                                            font-family: Arial, sans-serif;
-                                                                            margin: 0;
-                                                                            padding: 20px;
-                                                                            color: #333;
-                                                                        }
-                                                                        .invoice-container {
-                                                                            max-width: 800px;
-                                                                            margin: 0 auto;
-                                                                            border: 1px solid #ddd;
-                                                                            padding: 20px;
-                                                                            background: white;
-                                                                        }
-                                                                        .invoice-header {
-                                                                            text-align: center;
-                                                                            margin-bottom: 20px;
-                                                                            border-bottom: 2px solid #333;
-                                                                            padding-bottom: 10px;
-                                                                        }
-                                                                        .invoice-header h2 {
-                                                                            margin: 0;
-                                                                            color: #333;
-                                                                        }
-                                                                        .invoice-header p {
-                                                                            margin: 5px 0;
-                                                                            color: #666;
-                                                                        }
-                                                                        .invoice-info {
-                                                                            margin-bottom: 20px;
-                                                                        }
-                                                                        .invoice-info .row {
-                                                                            display: flex;
-                                                                            justify-content: space-between;
-                                                                        }
-                                                                        .invoice-info p {
-                                                                            margin: 5px 0;
-                                                                        }
-                                                                        .invoice-items {
-                                                                            width: 100%;
-                                                                            border-collapse: collapse;
-                                                                            margin-bottom: 20px;
-                                                                        }
-                                                                        .invoice-items th,
-                                                                        .invoice-items td {
-                                                                            border: 1px solid #ddd;
-                                                                            padding: 8px;
-                                                                            text-align: left;
-                                                                        }
-                                                                        .invoice-items th {
-                                                                            background-color: #f5f5f5;
-                                                                            font-weight: bold;
-                                                                        }
-                                                                        .invoice-items tfoot th {
-                                                                            text-align: right;
-                                                                            background-color: #e9ecef;
-                                                                        }
-                                                                        .invoice-footer {
-                                                                            text-align: center;
-                                                                            margin-top: 30px;
-                                                                            padding-top: 20px;
-                                                                            border-top: 1px solid #ddd;
-                                                                        }
-                                                                        .text-right {
-                                                                            text-align: right;
-                                                                        }
-                                                                        .badge {
-                                                                            padding: 4px 8px;
-                                                                            border-radius: 4px;
-                                                                            font-size: 12px;
-                                                                            font-weight: bold;
-                                                                        }
-                                                                        .badge-not-paid { background-color: #fed7d7; color: #c53030; }
-                                                                        .badge-partial { background-color: #feebcb; color: #b45309; }
-                                                                        .badge-paid { background-color: #c6f6d5; color: #22543d; }
-                                                                        .badge-change { background-color: #bee3f8; color: #2c5282; }
-
-                                                                        @media print {
-                                                                            body {
-                                                                                padding: 0;
-                                                                                margin: 0;
-                                                                            }
-                                                                            .invoice-container {
-                                                                                border: none;
-                                                                                padding: 0;
-                                                                            }
-                                                                            .no-print {
-                                                                                display: none !important;
-                                                                            }
-                                                                        }
-                                                                    </style>
-                                                                </head>
-                                                                <body>
-                                                                    <div class="invoice-container">
-                                                                        <div class="invoice-header">
-                                                                            <h2>Toko Kelontong Pak Dedi</h2>
-                                                                            <p>Point of Sale System</p>
-                                                                            <h3>INVOICE</h3>
-                                                                        </div>
-
-                                                                        <div class="invoice-info">
-                                                                            <div class="row">
-                                                                                <div>
-                                                                                    <p><strong>Order ID:</strong> ${data.orderId}</p>
-                                                                                    <p><strong>Date:</strong> ${data.formattedDate}</p>
-                                                                                    <p><strong>Time:</strong> ${data.formattedTime}</p>
-                                                                                </div>
-                                                                                <div>
-                                                                                    <p><strong>Customer:</strong> ${data.customerName || 'N/A'}</p>
-                                                                                    <p><strong>Status:</strong> ${data.statusHTML}</p>
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-
-                                                                        <table class="invoice-items">
-                                                                            <thead>
-                                                                                <tr>
-                                                                                    <th>#</th>
-                                                                                    <th>Item</th>
-                                                                                    <th>Description</th>
-                                                                                    <th>Price</th>
-                                                                                    <th>Qty</th>
-                                                                                    <th>Total</th>
-                                                                                </tr>
-                                                                            </thead>
-                                                                            <tbody>
-                                                                                ${data.itemsHTML}
-                                                                            </tbody>
-                                                                            <tfoot>
-                                                                                <tr>
-                                                                                    <th colspan="5">Total:</th>
-                                                                                    <th>{{ config('settings.currency_symbol') }} ${parseFloat(data.totalAmount).toFixed(2)}</th>
-                                                                                </tr>
-                                                                                <tr>
-                                                                                    <th colspan="5">Paid:</th>
-                                                                                    <th>{{ config('settings.currency_symbol') }} ${parseFloat(data.receivedAmount).toFixed(2)}</th>
-                                                                                </tr>
-                                                                                <tr>
-                                                                                    <th colspan="5">Balance:</th>
-                                                                                    <th>{{ config('settings.currency_symbol') }} ${parseFloat(data.totalAmount - data.receivedAmount).toFixed(2)}</th>
-                                                                                </tr>
-                                                                            </tfoot>
-                                                                        </table>
-
-                                                                        <div class="invoice-footer">
-                                                                            <p>Thank you for your visit</p>
-                                                                            <p>www.tokokelontongpakdedi.com</p>
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <script>
-                                                                        window.onload = function() {
-                                                                            window.print();
-                                                                            setTimeout(function() {
-                                                                                window.close();
-                                                                            }, 100);
-                                                                        }
-                                                                    <\/script>
-                                                                </body>
-                                                                </html>
-                                                                `;
-
-                // Write the content to the new window
-                printWindow.document.open();
-                printWindow.document.write(printContent);
-                printWindow.document.close();
-            }
+            // Reset saat modal ditutup
+            $('#modalInvoice').on('hidden.bs.modal', function() {
+                currentOrderId = null;
+                $('#invoiceModalBody').html(`
+                    <div class="text-center py-5">
+                        <i class="fas fa-spinner fa-spin fa-3x text-primary"></i>
+                        <p class="mt-3">Loading invoice...</p>
+                    </div>
+                `);
+            });
         });
     </script>
 @endsection
