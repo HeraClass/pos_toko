@@ -78,6 +78,8 @@ class CategoryController extends Controller
     public function destroy(Category $category)
     {
         $category->delete();
-        return response()->json(['success' => true]);
+        return redirect()
+            ->route('categories.index')
+            ->with('success', 'Category Successfully Deleted');
     }
 }

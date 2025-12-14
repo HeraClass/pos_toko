@@ -294,10 +294,12 @@ class ProductController extends Controller
         if ($product->image) {
             Storage::delete($product->image);
         }
+
         $product->delete();
 
-        return response()->json([
-            'success' => true
-        ]);
+        return redirect()
+            ->route('products.index')
+            ->with('success', 'Produk berhasil dihapus');
     }
+
 }

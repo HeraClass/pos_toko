@@ -264,8 +264,8 @@ class SupplierController extends Controller
 
         $supplier->delete();
 
-        return response()->json([
-            'success' => true
-        ]);
+        return redirect()
+        ->route('suppliers.index')
+        ->with('success', 'Suppliers Successfully Deleted' );
     }
 }

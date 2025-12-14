@@ -418,6 +418,8 @@ class PurchaseController extends Controller
         }
 
         $purchase->delete();
-        return response()->json(['message' => 'Purchase deleted successfully']);
+        return redirect()
+        ->route('purchases.index')
+        ->with('success', 'Purchase Successfully Deleted' );
     }
 }

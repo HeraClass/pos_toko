@@ -41,7 +41,7 @@ return [
     'Remove_Avatar' => 'Remove Avatar',
     'Avatar_Hint' => 'Recommended size: 120x120 pixels, max 2MB',
     'Update_Supplier' => 'Update Supplier',
-    'Supplier_List' => 'Supplier List',
+    'Supplier_List' => 'Suppliers List',
     'Add_Supplier' => 'Add Supplier',
     'Search_Suppliers' => 'Search Suppliers',
     'ID' => 'ID',
