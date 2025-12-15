@@ -138,5 +138,7 @@
     "common.More_info": "Info Lebih Lanjut",
     "dashboard.Income": "Total Pendapatan",
     "dashboard.Income_Today": "Pendapatan Hari Ini",
-    "dashboard.Customers_Count": "Total Pelanggan"
+    "dashboard.Customers_Count": "Total Pelanggan",
+    "product.Enter_Description": "Masukan Deskripsi"
+
 }
