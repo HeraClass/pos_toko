@@ -4,7 +4,6 @@ use App\Http\Controllers\AdjustmentController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
-use App\Http\Controllers\ExportController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PermissionController;
@@ -22,10 +21,6 @@ Route::get('/', function () {
 });
 
 Auth::routes();
-
-Route::middleware(['auth'])->group(function () {
-    Route::get('/export', [ExportController::class, 'export'])->name('export');
-});
 
 Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -78,23 +73,20 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
 
     Route::resource('users', UserController::class);
 
-    Route::get('/locale/{type}', function ($type) {
-        $translations = trans($type);
-        return response()->json($translations);
-    });
+    // Route::get('/locale/{type}', function ($type) {
+    //     $translations = trans($type);
+    //     return response()->json($translations);
+    // });
 
     Route::get('/lang-switch/{lang}', function ($lang) {
-        $supportedLocales = ['en', 'id'];
-
-        if (in_array($lang, $supportedLocales)) {
+        if (in_array($lang, ['en', 'id'])) {
             session(['locale' => $lang]);
-            app()->setLocale($lang);
         }
 
         return redirect()->back();
     })->name('lang.switch');
 });
 
-Route::get('/test-permission', function () {
-    dd(auth()->user()->getAllPermissions());
-})->middleware('auth');
+//Route::get('/test-permission', function () {
+//   dd(auth()->user()->getAllPermissions());
+// })->middleware('auth');
