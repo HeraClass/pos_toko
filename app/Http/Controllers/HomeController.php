@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\Customer;
+use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\PurchaseItem;
 use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
@@ -41,8 +43,8 @@ class HomeController extends Controller
                 'products.quantity',
                 'products.description',
                 'products.image',
-                'products.barcode', 
-                'products.status', 
+                'products.barcode',
+                'products.status',
                 'products.created_at',
                 'products.updated_at',
                 DB::raw('SUM(order_items.quantity) AS total_sold')
@@ -56,8 +58,8 @@ class HomeController extends Controller
                 'products.quantity',
                 'products.description',
                 'products.image',
-                'products.barcode', 
-                'products.status', 
+                'products.barcode',
+                'products.status',
                 'products.created_at',
                 'products.updated_at'
             )
@@ -72,8 +74,8 @@ class HomeController extends Controller
                 'products.quantity',
                 'products.description',
                 'products.image',
-                'products.barcode', 
-                'products.status', 
+                'products.barcode',
+                'products.status',
                 'products.created_at',
                 'products.updated_at',
                 DB::raw('SUM(order_items.quantity) AS total_sold')
@@ -89,8 +91,8 @@ class HomeController extends Controller
                 'products.quantity',
                 'products.description',
                 'products.image',
-                'products.barcode', 
-                'products.status', 
+                'products.barcode',
+                'products.status',
                 'products.created_at',
                 'products.updated_at'
             )
@@ -105,8 +107,8 @@ class HomeController extends Controller
                 'products.quantity',
                 'products.description',
                 'products.image',
-                'products.barcode', 
-                'products.status', 
+                'products.barcode',
+                'products.status',
                 'products.created_at',
                 'products.updated_at',
                 DB::raw('SUM(order_items.quantity) AS total_sold')
@@ -121,13 +123,40 @@ class HomeController extends Controller
                 'products.quantity',
                 'products.description',
                 'products.image',
-                'products.barcode', 
-                'products.status', 
+                'products.barcode',
+                'products.status',
                 'products.created_at',
                 'products.updated_at'
             )
             ->havingRaw('SUM(order_items.quantity) > 1000')
             ->get();
+
+        $topProfitableProducts = OrderItem::with('product')
+            ->get()
+            ->groupBy('product_id')
+            ->map(function ($items, $productId) {
+                $product = $items->first()->product;
+                $qty = $items->sum('quantity');
+                $sales = $items->sum('subtotal');
+                $avgCost = PurchaseItem::where('product_id', $productId)->avg('price') ?? 0;
+                $cost = $avgCost * $qty;
+                $profit = $sales - $cost;
+                $margin = $sales > 0 ? ($profit / $sales) * 100 : 0;
+
+                return [
+                    'product_name' => $product?->name ?? 'Unknown',
+                    'qty_sold' => $qty,
+                    'total_sales' => $sales,
+                    'total_cost' => $cost,
+                    'profit' => $profit,
+                    'margin' => $margin,
+                    'image' => $product?->image,
+                    'id' => $product?->id,
+                ];
+            })
+            ->sortByDesc('profit')
+            ->take(10)
+            ->values();
 
         return view('home', [
             'orders_count' => $orders->count(),
@@ -143,6 +172,7 @@ class HomeController extends Controller
             'best_selling_products' => $bestSellingProducts,
             'current_month_products' => $currentMonthBestSelling,
             'past_months_products' => $pastSixMonthsHotProducts,
+            'top_profitable_products' => $topProfitableProducts,
         ]);
     }
 }

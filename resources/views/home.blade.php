@@ -279,6 +279,53 @@
 
       <!-- Product Sections -->
       <div class="products-grid">
+         <!-- Top 10 Most Profitable Products -->
+         <div class="product-section">
+            <div class="section-header">
+               <h3 class="section-title">{{ __('dashboard.Top_Profitable_Products') }}</h3>
+            </div>
+            @if($top_profitable_products->count() > 0)
+               <div class="table-responsive">
+                  <table class="product-table">
+                     <thead>
+                        <tr>
+                           <th>{{ __('dashboard.ID') }}</th>
+                           <th>{{ __('dashboard.Name') }}</th>
+                           <th>{{ __('dashboard.Image') }}</th>
+                           <th>{{ __('dashboard.Qty_Sold') }}</th>
+                           <th>{{ __('dashboard.Total_Sales') }}</th>
+                           <th>{{ __('dashboard.Total_Cost') }}</th>
+                           <th>{{ __('dashboard.Profit') }}</th>
+                           <th>{{ __('dashboard.Margin') }}</th>
+                        </tr>
+                     </thead>
+                     <tbody>
+                        @foreach ($top_profitable_products as $product)
+                           <tr>
+                              <td>{{ $product['id'] }}</td>
+                              <td>{{ $product['product_name'] }}</td>
+                              <td>
+                                 <img class="product-img" src="{{ Storage::url($product['image']) }}"
+                                    alt="{{ $product['product_name'] }}">
+                              </td>
+                              <td>{{ $product['qty_sold'] }}</td>
+                              <td>{{ config('settings.currency_symbol') }} {{ number_format($product['total_sales'], 2) }}</td>
+                              <td>{{ config('settings.currency_symbol') }} {{ number_format($product['total_cost'], 2) }}</td>
+                              <td>{{ config('settings.currency_symbol') }} {{ number_format($product['profit'], 2) }}</td>
+                              <td>{{ number_format($product['margin'], 2) }}%</td>
+                           </tr>
+                        @endforeach
+                     </tbody>
+                  </table>
+               </div>
+            @else
+               <div class="empty-state">
+                  <i class="fas fa-chart-line"></i>
+                  <p>{{ __('dashboard.No_Top_Profitable_Products') }}</p>
+               </div>
+            @endif
+         </div>
+
          <!-- Low Stock Products -->
          <div class="product-section">
             <div class="section-header">

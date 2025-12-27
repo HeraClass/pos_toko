@@ -200,8 +200,16 @@ class Cart extends Component {
         this.setState({ customer_id: event.target.value });
     }
 
+    formatCurrency(amount) {
+        const number = typeof amount === 'string' ? parseFloat(amount) : amount;
+        return window.APP.currency_symbol + number.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+
     handleClickSubmit() {
-        const { cart, translations } = this.state;
+        const { cart, translations, customer_id } = this.state;
         const invalidItems = cart.filter(c => c.pivot.quantity > c.quantity);
 
         if (invalidItems.length > 0) {
@@ -214,36 +222,70 @@ class Cart extends Component {
             return;
         }
 
-        const total = this.getTotal(cart);
+        const total = parseFloat(this.getTotal(cart));
+        const isWalkInCustomer = !customer_id || customer_id === "";
+        const minAmount = isWalkInCustomer ? total : 0;
+        const initialAmount = isWalkInCustomer ? total.toFixed(2) : "0.00";
 
         Swal.fire({
             title: translations["received_amount"] || "Payment Amount",
-            input: "number",
-            inputValue: total,
+            input: "text", // Changed from "number" to "text"
+            inputValue: initialAmount,
             inputAttributes: {
-                step: "0.01",
-                min: "0"
+                inputmode: "decimal",
+                pattern: "[0-9]*[.,]?[0-9]*"
             },
             cancelButtonText: translations["cancel_pay"] || "Cancel",
             showCancelButton: true,
             confirmButtonText: translations["confirm_pay"] || "Confirm Payment",
             showLoaderOnConfirm: true,
-            preConfirm: (amount) => {
-                if (amount < total) {
-                    Swal.showValidationMessage("Amount cannot be less than total");
-                    return false;
+            inputValidator: (amount) => {
+                if (amount === "" || amount === null) {
+                    return "Please enter an amount";
                 }
+
+                // Replace comma with dot for parsing
+                const sanitizedAmount = amount.replace(/,/g, '.');
+                const amountNum = parseFloat(sanitizedAmount);
+
+                if (isNaN(amountNum)) {
+                    return "Please enter a valid number";
+                }
+
+                // Validate decimal places
+                const decimalPart = sanitizedAmount.split('.')[1];
+                if (decimalPart && decimalPart.length > 2) {
+                    return "Maximum 2 decimal places allowed";
+                }
+
+                if (isWalkInCustomer && amountNum < total) {
+                    return `Amount cannot be less than total (${this.formatCurrency(total)})`;
+                }
+
+                if (!isWalkInCustomer && amountNum < 0) {
+                    return "Amount cannot be negative";
+                }
+
+                return null;
+            },
+            preConfirm: (amount) => {
+                // Format amount to 2 decimal places
+                const sanitizedAmount = amount.replace(/,/g, '.');
+                const amountNum = parseFloat(sanitizedAmount);
+                const formattedAmount = amountNum.toFixed(2);
+
                 return axios
                     .post("/admin/orders", {
                         customer_id: this.state.customer_id,
-                        amount,
+                        amount: formattedAmount,
                     })
                     .then((res) => {
                         this.loadCart();
                         return res.data;
                     })
                     .catch((err) => {
-                        Swal.showValidationMessage(err.response.data.message);
+                        Swal.showValidationMessage(err.response?.data?.message || "An error occurred");
+                        return false;
                     });
             },
             allowOutsideClick: () => !Swal.isLoading(),
@@ -277,7 +319,7 @@ class Cart extends Component {
                 <div className="product-info">
                     <h5>{p.name}</h5>
                     <div className="product-details">
-                        <p className="price">{window.APP.currency_symbol} {p.price}</p>
+                        <p className="price">{this.formatCurrency(p.price)}</p>
                     </div>
                     <div className="product-stock">
                         <p className="stock">Stock: {p.quantity}</p>
@@ -324,7 +366,7 @@ class Cart extends Component {
                     </div>
                 </td>
                 <td className="text-right">
-                    {window.APP.currency_symbol} {(c.price * c.pivot.quantity).toFixed(2)}
+                    {this.formatCurrency(c.price * c.pivot.quantity)}
                 </td>
                 <td>
                     <button
@@ -424,7 +466,7 @@ class Cart extends Component {
                                     <div className="total-section p-3 bg-light rounded">
                                         <div className="d-flex justify-content-between align-items-center mb-2">
                                             <strong>{translations["subtotal"] || "Subtotal"}:</strong>
-                                            <strong>{window.APP.currency_symbol} {total}</strong>
+                                            <strong>{this.formatCurrency(total)}</strong>
                                         </div>
                                         <div className="row">
                                             <div className="col-6">

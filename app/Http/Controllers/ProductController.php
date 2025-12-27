@@ -8,72 +8,80 @@ use App\Http\Requests\ProductUpdateRequest;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\PurchaseItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
     use ExportableTrait;
-
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index(Request $request)
+    
+    function __construct()
     {
-        $query = Product::with('category');
+        $this->middleware('permission:products.view', ['only' => ['index', 'show', 'priceInfo', 'priceStatistics']]);
+        $this->middleware('permission:products.create', ['only' => ['create', 'store']]);
+        $this->middleware('permission:products.edit', ['only' => ['edit', 'update']]);
+        $this->middleware('permission:products.delete', ['only' => ['destroy']]);    
+    }
 
-        // Search functionality
+    // Helper untuk menghindari pengulangan filter di index dan export
+    private function applyFilters($query, Request $request)
+    {
         if ($request->search) {
-            $query->where('name', 'LIKE', "%{$request->search}%")
-                ->orWhere('barcode', 'LIKE', "%{$request->search}%");
+            $query->where(function ($q) use ($request) {
+                $q->where('name', 'LIKE', "%{$request->search}%")
+                    ->orWhere('barcode', 'LIKE', "%{$request->search}%");
+            });
         }
 
-        // Status filter
         if ($request->status && in_array($request->status, ['active', 'inactive'])) {
-            $statusValue = $request->status === 'active' ? 1 : 0;
-            $query->where('status', $statusValue);
+            $query->where('status', $request->status === 'active' ? 1 : 0);
         }
 
-        // Category filter
         if ($request->category_id) {
             $query->where('category_id', $request->category_id);
         }
 
-        // Sorting functionality
         $sortBy = $request->get('sort_by', 'created_at');
         $sortOrder = $request->get('sort_order', 'desc');
+        $allowedSort = ['id', 'name', 'barcode', 'price', 'quantity', 'created_at'];
 
-        // Validate sort columns to prevent SQL injection
-        $allowedSortColumns = ['id', 'name', 'barcode', 'price', 'quantity', 'created_at'];
-        if (!in_array($sortBy, $allowedSortColumns)) {
-            $sortBy = 'created_at';
-        }
+        $query->orderBy(
+            in_array($sortBy, $allowedSort) ? $sortBy : 'created_at',
+            in_array($sortOrder, ['asc', 'desc']) ? $sortOrder : 'desc'
+        );
 
-        $allowedSortOrders = ['asc', 'desc'];
-        if (!in_array($sortOrder, $allowedSortOrders)) {
-            $sortOrder = 'desc';
-        }
+        return $query;
+    }
 
-        $query->orderBy($sortBy, $sortOrder);
+    public function index(Request $request)
+    {
+        // Optimasi: Ambil cost_price via Subquery (Hanya 1 Query ke Database)
+        $query = Product::with('category')->addSelect([
+            'cost_price' => PurchaseItem::select('price')
+                ->whereColumn('product_id', 'products.id')
+                ->latest()
+                ->limit(1)
+        ]);
 
-        $products = $query->paginate(10)->appends($request->query());
-        $categories = Category::all();
+        $products = $this->applyFilters($query, $request)->paginate(10)->appends($request->query());
+
+        // Hitung margin secara dinamis tanpa query tambahan di loop
+        $products->getCollection()->transform(function ($product) {
+            $product->profit_margin = $product->cost_price > 0
+                ? (($product->price - $product->cost_price) / $product->cost_price * 100)
+                : 0;
+            return $product;
+        });
 
         if (request()->wantsJson()) {
-            // Tambahkan full image URL untuk response JSON
-            $products->getCollection()->transform(function ($product) {
-                $product->image_url = $product->image ? Storage::url($product->image) : null;
-                return $product;
-            });
-
             return ProductResource::collection($products);
         }
 
-        return view('products.index')->with([
+        return view('products.index', [
             'products' => $products,
-            'categories' => $categories
+            'categories' => Category::all()
         ]);
     }
 
@@ -92,7 +100,9 @@ class ProductController extends Controller
             'name' => 'Nama Produk',
             'barcode' => 'Barcode',
             'category_name' => 'Kategori',
-            'price' => 'Harga',
+            'cost_price' => 'Harga Beli',
+            'price' => 'Harga Jual',
+            'profit_margin' => 'Margin (%)',
             'quantity' => 'Stok',
             'status' => 'Status',
             'created_at' => 'Dibuat Pada'
@@ -116,7 +126,9 @@ class ProductController extends Controller
             'name' => 'Nama Produk',
             'barcode' => 'Barcode',
             'category_name' => 'Kategori',
-            'price' => 'Harga',
+            'cost_price' => 'Harga Beli',
+            'price' => 'Harga Jual',
+            'profit_margin' => 'Margin (%)',
             'quantity' => 'Stok',
             'status' => 'Status',
             'created_at' => 'Dibuat Pada'
@@ -171,19 +183,69 @@ class ProductController extends Controller
 
         // Transform data untuk export
         return $products->map(function ($product) {
+            // Hitung harga beli rata-rata berdasarkan pembelian terakhir
+            $latestPurchase = PurchaseItem::where('product_id', $product->id)
+                ->orderBy('created_at', 'desc')
+                ->first();
+
+            $costPrice = $latestPurchase ? $latestPurchase->price : 0;
+            $profitMargin = $latestPurchase ?
+                (($product->price - $latestPurchase->price) / $latestPurchase->price * 100) : 0;
+
             return [
                 'id' => $product->id,
                 'name' => $product->name,
                 'barcode' => $product->barcode ?? '-',
                 'category_name' => $product->category ? $product->category->name : 'Tidak Ada Kategori',
+                'cost_price' => number_format($costPrice, 2),
                 'price' => $product->price,
+                'profit_margin' => number_format($profitMargin, 2) . '%',
                 'quantity' => $product->quantity,
                 'status' => $product->status ? 'Aktif' : 'Tidak Aktif',
                 'created_at' => $product->created_at->format('d-m-Y H:i')
             ];
         });
     }
-    
+
+    /**
+     * Show detailed price information for a product
+     */
+    public function priceInfo($id)
+    {
+        $product = Product::findOrFail($id);
+
+        // Get purchase history for this product
+        $purchases = PurchaseItem::where('product_id', $id)
+            ->with('purchase')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Calculate average cost price
+        $averageCost = $purchases->avg('price');
+
+        // Get lowest and highest purchase price
+        $lowestCost = $purchases->min('price');
+        $highestCost = $purchases->max('price');
+
+        // Calculate profit margin
+        $profitMargin = $averageCost > 0 ?
+            (($product->price - $averageCost) / $averageCost * 100) : 0;
+
+        return response()->json([
+            'product' => $product,
+            'purchases' => $purchases,
+            'price_info' => [
+                'cost_price' => $averageCost,
+                'selling_price' => $product->price,
+                'profit_margin' => $profitMargin,
+                'lowest_cost' => $lowestCost,
+                'highest_cost' => $highestCost,
+                'total_purchases' => $purchases->count(),
+                'total_quantity' => $purchases->sum('quantity')
+            ]
+        ]);
+    }
+
     /**
      * Show the form for creating a new resource.
      *
@@ -234,7 +296,43 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
-        //
+        // Ambil semua pembelian produk, urut terbaru, pakai pagination
+        $purchases = PurchaseItem::where('product_id', $product->id)
+            ->with(['purchase', 'purchase.supplier'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        // Ambil harga beli terakhir langsung dari DB (bukan dari paginated collection)
+        $latestPurchase = PurchaseItem::where('product_id', $product->id)
+            ->orderBy('created_at', 'desc')
+            ->first();
+        $latestCost = $latestPurchase ? $latestPurchase->price : 0;
+
+        // Harga beli rata-rata, min, max
+        $averageCost = PurchaseItem::where('product_id', $product->id)->avg('price');
+        $lowestCost = PurchaseItem::where('product_id', $product->id)->min('price');
+        $highestCost = PurchaseItem::where('product_id', $product->id)->max('price');
+
+        // Margin berdasarkan harga beli terakhir
+        $profitMargin = $latestCost ? ($product->price - $latestCost) / $latestCost * 100 : 0;
+
+        // Flag alert jika harga beli terakhir lebih tinggi dari harga jual
+        $isCostHigherThanPrice = $latestCost > $product->price;
+
+        // Siapkan data untuk view
+        $priceStats = [
+            'latest_cost' => $latestCost,
+            'average_cost' => $averageCost,
+            'lowest_cost' => $lowestCost,
+            'highest_cost' => $highestCost,
+            'selling_price' => $product->price,
+            'profit_margin' => $profitMargin,
+            'is_cost_higher_than_price' => $isCostHigherThanPrice,
+            'total_purchases' => PurchaseItem::where('product_id', $product->id)->count(),
+            'total_quantity' => PurchaseItem::where('product_id', $product->id)->sum('quantity')
+        ];
+
+        return view('products.show', compact('product', 'purchases', 'priceStats'));
     }
 
     /**
@@ -246,7 +344,15 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         $categories = Category::all();
-        return view('products.edit', compact('product', 'categories'));
+
+        // Get last purchase price as cost price reference
+        $lastPurchase = PurchaseItem::where('product_id', $product->id)
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        $cost_price = $lastPurchase ? $lastPurchase->price : 0;
+
+        return view('products.edit', compact('product', 'categories', 'cost_price'));
     }
 
     /**
@@ -301,5 +407,31 @@ class ProductController extends Controller
             ->route('products.index')
             ->with('success', 'Products Successfully Deleted');
     }
+    
+    /**
+     * Get product price statistics
+     */
+    public function priceStatistics()
+    {
+        $products = Product::all();
+        $stats = [];
 
+        foreach ($products as $product) {
+            $purchases = PurchaseItem::where('product_id', $product->id)->get();
+            $avgCost = $purchases->avg('price');
+
+            if ($avgCost > 0) {
+                $stats[] = [
+                    'product' => $product->name,
+                    'cost_price' => $avgCost,
+                    'selling_price' => $product->price,
+                    'profit' => $product->price - $avgCost,
+                    'margin' => (($product->price - $avgCost) / $avgCost) * 100,
+                    'quantity' => $product->quantity
+                ];
+            }
+        }
+
+        return response()->json(['price_statistics' => $stats]);
+    }
 }

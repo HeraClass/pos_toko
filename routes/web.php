@@ -4,6 +4,7 @@ use App\Http\Controllers\AdjustmentController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PermissionController;
@@ -47,6 +48,7 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::resource('orders', OrderController::class);
     Route::get('orders/export/pdf', [OrderController::class, 'exportPdf'])->name('orders.export.pdf');
     Route::get('orders/export/csv', [OrderController::class, 'exportCsv'])->name('orders.export.csv');
+    
     Route::resource('suppliers', SupplierController::class);
     Route::get('/suppliers/export/pdf', [SupplierController::class, 'exportPdf'])->name('suppliers.export.pdf');
     Route::get('/suppliers/export/csv', [SupplierController::class, 'exportCsv'])->name('suppliers.export.csv');
@@ -67,16 +69,21 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::get('/adjustments/export/pdf', [AdjustmentController::class, 'exportPdf'])->name('adjustments.export.pdf');
     Route::get('/adjustments/export/csv', [AdjustmentController::class, 'exportCsv'])->name('adjustments.export.csv');
 
+    Route::resource('expenses', ExpenseController::class);
+    
+    Route::get('/profit', [App\Http\Controllers\ProfitController::class, 'index'])
+    ->name('profit.index');
+
     Route::resource('roles', RoleController::class);
 
     Route::resource('permissions', PermissionController::class);
 
     Route::resource('users', UserController::class);
 
-    // Route::get('/locale/{type}', function ($type) {
-    //     $translations = trans($type);
-    //     return response()->json($translations);
-    // });
+    Route::get('/locale/{type}', function ($type) {
+        $translations = trans($type);
+        return response()->json($translations);
+    });
 
     Route::get('/lang-switch/{lang}', function ($lang) {
         if (in_array($lang, ['en', 'id'])) {
@@ -87,6 +94,6 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     })->name('lang.switch');
 });
 
-//Route::get('/test-permission', function () {
-//   dd(auth()->user()->getAllPermissions());
-// })->middleware('auth');
+Route::get('/test-permission', function () {
+    dd(auth()->user()->getAllPermissions());
+})->middleware('auth');

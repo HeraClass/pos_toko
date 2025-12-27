@@ -41,9 +41,7 @@ class Order extends Model
 
     public function total()
     {
-        return $this->items->map(function ($i) {
-            return $i->price;
-        })->sum();
+        return $this->items->sum('subtotal');
     }
 
     public function formattedTotal()

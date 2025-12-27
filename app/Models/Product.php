@@ -53,4 +53,24 @@ class Product extends Model
     {
         return $this->hasMany(Adjustment::class);
     }
+
+    public function getAverageCostAttribute()
+    {
+        return PurchaseItem::where('product_id', $this->id)->avg('price') ?? 0;
+    }
+
+    public function getLastPurchasePriceAttribute()
+    {
+        return PurchaseItem::where('product_id', $this->id)
+            ->orderBy('created_at', 'desc')
+            ->first()->price ?? 0;
+    }
+
+    public function getIsCostHigherThanPriceAttribute()
+    {
+        if ($this->cost_price && $this->price) {
+            return $this->cost_price > $this->price;
+        }
+        return false;
+    }
 }

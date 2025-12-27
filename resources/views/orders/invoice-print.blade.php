@@ -1,15 +1,16 @@
-{{-- 
-    File: resources/views/orders/invoice-print.blade.php
-    Halaman dedicated untuk print (dibuka dari modal via button Print)
-    FILE INI OPTIONAL - hanya jika ingin halaman print terpisah
+{{--
+File: resources/views/orders/invoice-print.blade.php
+Halaman dedicated untuk print (dibuka dari modal via button Print)
+FILE INI OPTIONAL - hanya jika ingin halaman print terpisah
 --}}
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice #{{ $order->id }} - Toko Kelontong Pak Dedy</title>
+    <title>Invoice #{{ $order->id }} - Toko Kelontong Pak Dedi</title>
     <style>
         * {
             margin: 0;
@@ -177,6 +178,7 @@
         }
     </style>
 </head>
+
 <body>
     <!-- Print Button (Hidden saat print) -->
     <div class="print-button">
@@ -188,8 +190,9 @@
     <div class="invoice-container">
         <!-- Invoice Header -->
         <div class="invoice-header">
-            <h1>Toko Pak Dedy</h1>
-            <p>Jl. Jawa No 7</p>
+            <h1>Toko Kelontong Pak Dedi</h1>
+            <p>Jl. Contoh No. 123, Surabaya</p>
+            <p>Telp: (031) 123-4567</p>
             <p class="invoice-title">INVOICE</p>
         </div>
 
@@ -203,7 +206,7 @@
             </div>
             <div class="invoice-info-right">
                 <p><strong>Customer:</strong> {{ $order->getCustomerName() }}</p>
-                <p><strong>Type:</strong> 
+                <p><strong>Type:</strong>
                     @if($order->customer_id === null)
                         Walk-in Customer
                     @else
@@ -234,7 +237,7 @@
                 <tr>
                     <th style="width: 40px;">#</th>
                     <th>Item Name</th>
-                    <th style="width: 120px;" class="text-right">Price</th>
+                    <th style="width: 120px;" class="text-right">Unit Price</th>
                     <th style="width: 80px;" class="text-right">Qty</th>
                     <th style="width: 130px;" class="text-right">Subtotal</th>
                 </tr>
@@ -243,32 +246,44 @@
                 @forelse($order->items as $index => $item)
                     <tr>
                         <td>{{ $index + 1 }}</td>
-                        <td>{{ $item->product ? $item->product->name : 'N/A' }}</td>
-                        <td class="text-right">{{ config('settings.currency_symbol') }} {{ number_format($item->price, 2) }}</td>
-                        <td class="text-right">{{ $item->quantity }}</td>
-                        <td class="text-right">{{ config('settings.currency_symbol') }} {{ number_format($item->price * $item->quantity, 2) }}</td>
+                        <td>{{ $item->product?->name ?? 'N/A' }}</td>
+
+                        <td class="text-right">
+                            {{ config('settings.currency_symbol') }}
+                            {{ number_format($item->unit_price, 2) }}
+                        </td>
+
+                        <td class="text-right">
+                            {{ number_format($item->quantity, 0) }}
+                        </td>
+
+                        <td class="text-right">
+                            {{ config('settings.currency_symbol') }}
+                            {{ number_format($item->subtotal, 2) }}
+                        </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" style="text-align: center; padding: 20px;">
-                            No items found
-                        </td>
+                        <td colspan="5" style="text-align:center;">No items found</td>
                     </tr>
                 @endforelse
             </tbody>
             <tfoot>
                 <tr>
                     <td colspan="4" class="text-right"><strong>Subtotal:</strong></td>
-                    <td class="text-right"><strong>{{ config('settings.currency_symbol') }} {{ number_format($order->total(), 2) }}</strong></td>
+                    <td class="text-right"><strong>{{ config('settings.currency_symbol') }}
+                            {{ number_format($order->total(), 2) }}</strong></td>
                 </tr>
                 <tr>
                     <td colspan="4" class="text-right"><strong>Paid Amount:</strong></td>
-                    <td class="text-right"><strong>{{ config('settings.currency_symbol') }} {{ number_format($order->receivedAmount(), 2) }}</strong></td>
+                    <td class="text-right"><strong>{{ config('settings.currency_symbol') }}
+                            {{ number_format($order->receivedAmount(), 2) }}</strong></td>
                 </tr>
                 <tr class="total-row">
                     <td colspan="4" class="text-right"><strong>Balance Due:</strong></td>
                     <td class="text-right">
-                        <strong>{{ config('settings.currency_symbol') }} {{ number_format($order->total() - $order->receivedAmount(), 2) }}</strong>
+                        <strong>{{ config('settings.currency_symbol') }}
+                            {{ number_format($order->total() - $order->receivedAmount(), 2) }}</strong>
                     </td>
                 </tr>
             </tfoot>
@@ -278,7 +293,7 @@
         <div class="invoice-footer">
             <p class="thank-you">Thank You for Your Order!</p>
             <p>For questions about this invoice, please contact us</p>
-            <p>www.tokopakdedy.my.id</p>
+            <p>www.tokokelontongpakdedi.com</p>
             <p style="margin-top: 15px; font-size: 0.85rem;">
                 Printed on: {{ now()->format('F d, Y H:i:s') }}
             </p>
@@ -293,4 +308,5 @@
         // }
     </script>
 </body>
+
 </html>

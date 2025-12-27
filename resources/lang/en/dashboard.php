@@ -42,4 +42,14 @@ return [
     'Quantity' => 'Quantity',
     'Status' => 'Status',
     'Updated_At' => 'Updated At',
+
+    //==========================================
+    // Top Profitable Products
+    //==========================================
+    'Top_Profitable_Products' => 'Top 10 Most Profitable Products',
+    'Qty_Sold' => 'Qty Sold',
+    'Total_Sales' => 'Total Sales',
+    'Total_Cost' => 'Total Cost',
+    'Profit' => 'Profit',
+    'Margin' => 'Margin',
 ];

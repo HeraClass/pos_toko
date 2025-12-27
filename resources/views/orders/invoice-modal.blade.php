@@ -1,6 +1,6 @@
-{{-- 
-    File: resources/views/orders/invoice-modal.blade.php
-    Ini adalah partial view untuk ditampilkan di modal
+{{--
+File: resources/views/orders/invoice-modal.blade.php
+Ini adalah partial view untuk ditampilkan di modal
 --}}
 
 <div class="invoice-wrapper">
@@ -196,7 +196,7 @@
 
     <!-- Invoice Header -->
     <div class="invoice-header">
-        <h3>Toko Pak Dedy</h3>
+        <h3>Toko Kelontong Pak Dedi</h3>
         <p>Point of Sale System</p>
         <p class="invoice-title">INVOICE</p>
     </div>
@@ -210,7 +210,7 @@
         </div>
         <div class="invoice-info-right">
             <p><strong>Customer:</strong> {{ $order->getCustomerName() }}</p>
-            <p><strong>Type:</strong> 
+            <p><strong>Type:</strong>
                 @if($order->customer_id === null)
                     Walk-in Customer
                 @else
@@ -243,9 +243,9 @@
                     <th style="width: 40px;">#</th>
                     <th>Item Name</th>
                     <th>Description</th>
-                    <th style="width: 100px;" class="text-right">Price</th>
+                    <th style="width: 120px;" class="text-right">Unit Price</th>
                     <th style="width: 60px;" class="text-right">Qty</th>
-                    <th style="width: 110px;" class="text-right">Subtotal</th>
+                    <th style="width: 130px;" class="text-right">Subtotal</th>
                 </tr>
             </thead>
             <tbody>
@@ -253,10 +253,18 @@
                     <tr>
                         <td>{{ $index + 1 }}</td>
                         <td><strong>{{ $item->product ? $item->product->name : 'N/A' }}</strong></td>
-                        <td>{{ $item->product ? $item->product->name : 'Product not available' }}</td>
-                        <td class="text-right">{{ config('settings.currency_symbol') }} {{ number_format($item->price, 2) }}</td>
-                        <td class="text-right">{{ $item->quantity }}</td>
-                        <td class="text-right">{{ config('settings.currency_symbol') }} {{ number_format($item->price * $item->quantity, 2) }}</td>
+                        <td>{{ $item->product?->description ?? '-' }}</td>
+                        <td class="text-right">
+                            {{ number_format($item->unit_price, 2) }}
+                        </td>
+
+                        <td class="text-right">
+                            {{ number_format($item->quantity, 0) }}
+                        </td>
+
+                        <td class="text-right">
+                            {{ number_format($item->subtotal, 2) }}
+                        </td>
                     </tr>
                 @empty
                     <tr>
@@ -270,16 +278,19 @@
             <tfoot>
                 <tr>
                     <td colspan="5" class="text-right"><strong>Subtotal:</strong></td>
-                    <td class="text-right"><strong>{{ config('settings.currency_symbol') }} {{ number_format($order->total(), 2) }}</strong></td>
+                    <td class="text-right"><strong>{{ config('settings.currency_symbol') }}
+                            {{ number_format($order->total(), 2) }}</strong></td>
                 </tr>
                 <tr>
                     <td colspan="5" class="text-right"><strong>Paid Amount:</strong></td>
-                    <td class="text-right"><strong>{{ config('settings.currency_symbol') }} {{ number_format($order->receivedAmount(), 2) }}</strong></td>
+                    <td class="text-right"><strong>{{ config('settings.currency_symbol') }}
+                            {{ number_format($order->receivedAmount(), 2) }}</strong></td>
                 </tr>
                 <tr class="total-row">
                     <td colspan="5" class="text-right"><strong>Balance Due:</strong></td>
                     <td class="text-right">
-                        <strong>{{ config('settings.currency_symbol') }} {{ number_format($order->total() - $order->receivedAmount(), 2) }}</strong>
+                        <strong>{{ config('settings.currency_symbol') }}
+                            {{ number_format($order->total() - $order->receivedAmount(), 2) }}</strong>
                     </td>
                 </tr>
             </tfoot>
@@ -291,7 +302,7 @@
         <p class="thank-you">Thank You for Your Order!</p>
         <p>For questions about this invoice, please contact us</p>
         <p style="margin-top: 10px; font-size: 0.85rem; color: #9ca3af;">
-            www.tokopakdedy.my.id
+            www.tokokelontongpakdedi.com
         </p>
     </div>
 </div>

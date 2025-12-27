@@ -43,4 +43,13 @@ return [
     'Status' => 'Status',
     'Updated_At' => 'Diperbarui Pada',
 
+    //==========================================
+    // Top Profitable Products
+    //==========================================
+    'Top_Profitable_Products' => '10 Produk Paling Menguntungkan',
+    'Qty_Sold' => 'Jumlah Terjual',
+    'Total_Sales' => 'Total Penjualan',
+    'Total_Cost' => 'Total Biaya',
+    'Profit' => 'Keuntungan',
+    'Margin' => 'Margin (%)',
 ];

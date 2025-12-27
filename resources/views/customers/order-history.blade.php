@@ -695,13 +695,13 @@
                                         </th>
                                         <th class="th-sortable {{ request('sort_by') == 'created_at' ? 'current-sort' : '' }}">
                                             <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'created_at', 'sort_order' => request('sort_order') == 'asc' ? 'desc' : 'asc']) }}" class="sort-link">
-                                                Tanggal
+                                                Date
                                                 <i class="fas fa-sort sort-icon"></i>
                                             </a>
                                         </th>
-                                        <th>Produk</th>
+                                        <th>Product</th>
                                         <th>Qty</th>
-                                        <th>Harga</th>
+                                        <th>Unit Price</th>
                                         <th>SubTotal</th>
                                         <th class="th-sortable {{ request('sort_by') == 'received_amount' ? 'current-sort' : '' }}">
                                             <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'received_amount', 'sort_order' => request('sort_order') == 'asc' ? 'desc' : 'asc']) }}" class="sort-link">
@@ -730,10 +730,10 @@
                                                     <div class="quantity">{{ $item->quantity }}</div>
                                                 </td>
                                                 <td>
-                                                    <div class="price">{{ config('settings.currency_symbol') }}{{ number_format($item->price / $item->quantity, 2) }}</div>
+                                                    <div class="price">{{ config('settings.currency_symbol') }}{{ number_format($item->unit_price, 2) }}</div>
                                                 </td>
                                                 <td>
-                                                    <div class="subtotal">{{ config('settings.currency_symbol') }}{{ number_format($item->price, 2) }}</div>
+                                                    <div class="subtotal">{{ config('settings.currency_symbol') }}{{ number_format($item->subtotal, 2) }}</div>
                                                 </td>
                                                 <td>
                                                     @php

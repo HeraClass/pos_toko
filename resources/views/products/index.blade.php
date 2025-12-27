@@ -61,7 +61,7 @@
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 0;
-            min-width: 1200px;
+            min-width: 1300px; /* Diperlebar untuk menampung kolom tambahan */
         }
 
         .product-table thead {
@@ -165,6 +165,23 @@
         .price {
             font-weight: 600;
             color: #2d3748;
+        }
+
+        .cost-price {
+            font-weight: 500;
+            color: #4a5568;
+        }
+
+        .profit-margin {
+            font-weight: 600;
+        }
+
+        .positive-margin {
+            color: #38a169;
+        }
+
+        .negative-margin {
+            color: #e53e3e;
         }
 
         .quantity {
@@ -843,8 +860,22 @@
                                             </a>
                                         </th>
                                         <th class="th-sortable">
-                                            Price
+                                            Cost Price
+                                            <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'cost_price', 'sort_order' => request('sort_order') == 'asc' ? 'desc' : 'asc']) }}"
+                                                class="sort-link">
+                                                <i class="fas fa-sort"></i>
+                                            </a>
+                                        </th>
+                                        <th class="th-sortable">
+                                            Selling Price
                                             <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'price', 'sort_order' => request('sort_order') == 'asc' ? 'desc' : 'asc']) }}"
+                                                class="sort-link">
+                                                <i class="fas fa-sort"></i>
+                                            </a>
+                                        </th>
+                                        <th class="th-sortable">
+                                            Margin Product
+                                            <a href="{{ request()->fullUrlWithQuery(['sort_by' => 'profit_margin', 'sort_order' => request('sort_order') == 'asc' ? 'desc' : 'asc']) }}"
                                                 class="sort-link">
                                                 <i class="fas fa-sort"></i>
                                             </a>
@@ -882,7 +913,16 @@
                                                     onerror="this.src='https://via.placeholder.com/60x60?text=No+Image'">
                                             </td>
                                             <td>
-                                                <div class="product-name">{{ $product->name }}</div>
+                                                <div class="product-name">
+                                                    {{ $product->name }}
+                                                    @if($product->cost_price > $product->price)
+                                                        <div class="mt-1">
+                                                            <span class="badge" style="background-color: #f8d7da; color: #842029;">
+                                                                ⚠ Harga beli terbaru lebih tinggi dari harga jual!
+                                                            </span>
+                                                        </div>
+                                                    @endif
+                                                </div>
                                             </td>
                                             <td>
                                                 @if ($product->category)
@@ -894,9 +934,25 @@
                                             <td>
                                                 <code>{{ $product->barcode }}</code>
                                             </td>
+                                            <!-- Harga Beli -->
+                                            <td>
+                                                <div class="cost-price" 
+                                                    @if($product->cost_price > $product->price) 
+                                                        style="color: #e53e3e; font-weight: 700;" 
+                                                    @endif>
+                                                    {{ config('settings.currency_symbol') }}{{ number_format($product->cost_price ?? 0, 2) }}
+                                                </div>
+                                            </td>
+                                            <!-- Harga Jual -->
                                             <td>
                                                 <div class="price">
                                                     {{ config('settings.currency_symbol') }}{{ number_format($product->price, 2) }}
+                                                </div>
+                                            </td>
+                                            <!-- Margin -->
+                                            <td>
+                                                <div class="profit-margin {{ ($product->profit_margin ?? 0) >= 0 ? 'positive-margin' : 'negative-margin' }}">
+                                                    {{ number_format($product->profit_margin ?? 0, 2) }}%
                                                 </div>
                                             </td>
                                             <td>
@@ -917,36 +973,42 @@
                                                 </div>
                                             </td>
                                             <td>
-                                                @canany(['products.view', 'products.edit', 'products.delete'])
-                                                    <div class="action-buttons">
-                                                        @can('products.edit')
-                                                            <a href="{{ route('products.edit', $product) }}" class="btn btn-info btn-sm"
-                                                                title="Edit Product">
-                                                                <i class="fas fa-edit"></i>
-                                                                <span class="d-none d-md-inline">Edit</span>
-                                                            </a>
-                                                        @endcan
-                                                        @can('products.delete')
-                                                            <button class="btn btn-danger btn-sm delete-product"
-                                                                data-url="{{ route('products.destroy', $product) }}"
-                                                                data-name="{{ $product->name }}" title="Delete Product">
-                                                                <i class="fas fa-trash"></i>
-                                                                <span class="d-none d-md-inline">Delete</span>
-                                                            </button>
-                                                        @endcan
-                                                        @can('products.view')
-                                                            <button class="btn btn-success btn-sm print-single-barcode"
-                                                                data-barcode="{{ $product->barcode }}" data-name="{{ $product->name }}"
-                                                                title="Print Barcode">
-                                                                <i class="fas fa-barcode"></i>
-                                                                <span class="d-none d-md-inline">Barcode</span>
-                                                            </button>
-                                                        @endcan
-                                                    </div>
-                                                @else
-                                                    <span class="badge bg-secondary">No Action</span>
-                                                @endcanany
-                                            </td>
+    @canany(['products.view', 'products.edit', 'products.delete'])
+        <div class="action-buttons">
+            @can('products.view')
+                <a href="{{ route('products.show', $product) }}" class="btn btn-primary btn-sm" title="View Product">
+                    <i class="fas fa-eye"></i>
+                    <span class="d-none d-md-inline">View</span>
+                </a>
+            @endcan
+            @can('products.edit')
+                <a href="{{ route('products.edit', $product) }}" class="btn btn-info btn-sm"
+                    title="Edit Product">
+                    <i class="fas fa-edit"></i>
+                    <span class="d-none d-md-inline">Edit</span>
+                </a>
+            @endcan
+            @can('products.delete')
+                <button class="btn btn-danger btn-sm delete-product"
+                    data-url="{{ route('products.destroy', $product) }}"
+                    data-name="{{ $product->name }}" title="Delete Product">
+                    <i class="fas fa-trash"></i>
+                    <span class="d-none d-md-inline">Delete</span>
+                </button>
+            @endcan
+            @can('products.view')
+                <button class="btn btn-success btn-sm print-single-barcode"
+                    data-barcode="{{ $product->barcode }}" data-name="{{ $product->name }}"
+                    title="Print Barcode">
+                    <i class="fas fa-barcode"></i>
+                    <span class="d-none d-md-inline">Barcode</span>
+                </button>
+            @endcan
+        </div>
+    @else
+        <span class="badge bg-secondary">No Action</span>
+    @endcanany
+</td>
                                         </tr>
                                     @endforeach
                                 </tbody>

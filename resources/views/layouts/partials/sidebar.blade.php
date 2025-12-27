@@ -18,111 +18,125 @@
             </li>
 
             @can('categories.view')
-            <li class="nav-item">
-                <a href="{{ route('categories.index') }}" class="nav-link {{ activeSegment('categories') }}">
-                    <span class="nav-icon"><i class="fas fa-box"></i></span>
-                    <span class="nav-text">{{ __('category.title') }}</span>
-                </a>
-            </li>
+                <li class="nav-item">
+                    <a href="{{ route('categories.index') }}" class="nav-link {{ activeSegment('categories') }}">
+                        <span class="nav-icon"><i class="fas fa-box"></i></span>
+                        <span class="nav-text">{{ __('category.title') }}</span>
+                    </a>
+                </li>
             @endcan
 
             @can('products.view')
-            <li class="nav-item">
-                <a href="{{ route('products.index') }}" class="nav-link {{ activeSegment('products') }}">
-                    <span class="nav-icon"><i class="fas fa-box"></i></span>
-                    <span class="nav-text">{{ __('product.title') }}</span>
-                </a>
-            </li>
+                <li class="nav-item">
+                    <a href="{{ route('products.index') }}" class="nav-link {{ activeSegment('products') }}">
+                        <span class="nav-icon"><i class="fas fa-box"></i></span>
+                        <span class="nav-text">{{ __('product.title') }}</span>
+                    </a>
+                </li>
             @endcan
 
             @can('purchases.view')
-            <li class="nav-item">
-                <a href="{{ route('purchases.index') }}" class="nav-link {{ activeSegment('purchases') }}">
-                    <span class="nav-icon"><i class="fas fa-box"></i></span>
-                    <span class="nav-text">{{ __('purchase.title') }}</span>
-                </a>
-            </li>
+                <li class="nav-item">
+                    <a href="{{ route('purchases.index') }}" class="nav-link {{ activeSegment('purchases') }}">
+                        <span class="nav-icon"><i class="fas fa-box"></i></span>
+                        <span class="nav-text">{{ __('purchase.title') }}</span>
+                    </a>
+                </li>
             @endcan
 
             @can('adjustments.view')
-            <li class="nav-item">
-                <a href="{{ route('adjustments.index') }}" class="nav-link {{ activeSegment('adjustments') }}">
-                    <span class="nav-icon"><i class="fas fa-box"></i></span>
-                    <span class="nav-text">{{ __('adjustment.title') }}</span>
-                </a>
-            </li>
+                <li class="nav-item">
+                    <a href="{{ route('adjustments.index') }}" class="nav-link {{ activeSegment('adjustments') }}">
+                        <span class="nav-icon"><i class="fas fa-box"></i></span>
+                        <span class="nav-text">{{ __('adjustment.title') }}</span>
+                    </a>
+                </li>
             @endcan
 
             @can('cart.view')
-            <li class="nav-item">
-                <a href="{{ route('cart.index') }}" class="nav-link {{ activeSegment('cart') }}">
-                    <span class="nav-icon"><i class="fas fa-shopping-cart"></i></span>
-                    <span class="nav-text">{{ __('cart.title') }}</span>
-                </a>
-            </li>
+                <li class="nav-item">
+                    <a href="{{ route('cart.index') }}" class="nav-link {{ activeSegment('cart') }}">
+                        <span class="nav-icon"><i class="fas fa-shopping-cart"></i></span>
+                        <span class="nav-text">{{ __('cart.title') }}</span>
+                    </a>
+                </li>
             @endcan
 
             @can('orders.view')
-            <li class="nav-item">
-                <a href="{{ route('orders.index') }}" class="nav-link {{ activeSegment('orders') }}">
-                    <span class="nav-icon"><i class="fas fa-clipboard-list"></i></span>
-                    <span class="nav-text">{{ __('order.title') }}</span>
-                </a>
-            </li>
+                <li class="nav-item">
+                    <a href="{{ route('orders.index') }}" class="nav-link {{ activeSegment('orders') }}">
+                        <span class="nav-icon"><i class="fas fa-clipboard-list"></i></span>
+                        <span class="nav-text">{{ __('order.title') }}</span>
+                    </a>
+                </li>
             @endcan
 
             @can('customers.view')
-            <li class="nav-item">
-                <a href="{{ route('customers.index') }}" class="nav-link {{ activeSegment('customers') }}">
-                    <span class="nav-icon"><i class="fas fa-users"></i></span>
-                    <span class="nav-text">{{ __('customer.title') }}</span>
-                </a>
-            </li>
+                <li class="nav-item">
+                    <a href="{{ route('customers.index') }}" class="nav-link {{ activeSegment('customers') }}">
+                        <span class="nav-icon"><i class="fas fa-users"></i></span>
+                        <span class="nav-text">{{ __('customer.title') }}</span>
+                    </a>
+                </li>
             @endcan
 
             @can('suppliers.view')
-            <li class="nav-item">
-                <a href="{{ route('suppliers.index') }}" class="nav-link {{ activeSegment('suppliers') }}">
-                    <span class="nav-icon"><i class="fas fa-users"></i></span>
-                    <span class="nav-text">{{ __('suppliers.title') }}</span>
-                </a>
-            </li>
+                <li class="nav-item">
+                    <a href="{{ route('suppliers.index') }}" class="nav-link {{ activeSegment('suppliers') }}">
+                        <span class="nav-icon"><i class="fas fa-users"></i></span>
+                        <span class="nav-text">{{ __('suppliers.title') }}</span>
+                    </a>
+                </li>
             @endcan
 
+            <li class="nav-item">
+                <a href="{{ route('expenses.index') }}" class="nav-link {{ activeSegment('expenses') }}">
+                    <span class="nav-icon"><i class="fas fa-money-bill-wave"></i></span>
+                    <span class="nav-text">{{ __('expense.title') }}</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a href="{{ route('profit.index') }}" class="nav-link">
+                    <span class="nav-icon"><i class="fas fa-chart-line"></i></span>
+                    <span class="nav-text">Profit</span>
+                </a>
+            </li>
+
             @can('permissions.view')
-            <li class="nav-item">
-                <a href="{{ route('permissions.index') }}" class="nav-link {{ activeSegment('permissions') }}">
-                    <span class="nav-icon"><i class="fas fa-key"></i></span>
-                    <span class="nav-text">Permission Management</span>
-                </a>
-            </li>
+                <li class="nav-item">
+                    <a href="{{ route('permissions.index') }}" class="nav-link {{ activeSegment('permissions') }}">
+                        <span class="nav-icon"><i class="fas fa-key"></i></span>
+                        <span class="nav-text">Permission Management</span>
+                    </a>
+                </li>
             @endcan
-            
+
             @can('roles.view')
-            <li class="nav-item">
-                <a href="{{ route('roles.index') }}" class="nav-link {{ activeSegment('roles') }}">
-                    <span class="nav-icon"><i class="fas fa-shield-alt"></i></span>
-                    <span class="nav-text">Role Management</span>
-                </a>
-            </li>
+                <li class="nav-item">
+                    <a href="{{ route('roles.index') }}" class="nav-link {{ activeSegment('roles') }}">
+                        <span class="nav-icon"><i class="fas fa-shield-alt"></i></span>
+                        <span class="nav-text">Role Management</span>
+                    </a>
+                </li>
             @endcan
 
             @can('users.view')
-            <li class="nav-item">
-                <a href="{{ route('users.index') }}" class="nav-link {{ activeSegment('users') }}">
-                    <span class="nav-icon"><i class="fas fa-user-cog"></i></span>
-                    <span class="nav-text">User Management</span>
-                </a>
-            </li>
+                <li class="nav-item">
+                    <a href="{{ route('users.index') }}" class="nav-link {{ activeSegment('users') }}">
+                        <span class="nav-icon"><i class="fas fa-user-cog"></i></span>
+                        <span class="nav-text">User Management</span>
+                    </a>
+                </li>
             @endcan
 
             @can('settings.edit')
-            <li class="nav-item">
-                <a href="{{ route('settings.index') }}" class="nav-link {{ activeSegment('settings') }}">
-                    <span class="nav-icon"><i class="fas fa-cog"></i></span>
-                    <span class="nav-text">{{ __('settings.title') }}</span>
-                </a>
-            </li>
+                <li class="nav-item">
+                    <a href="{{ route('settings.index') }}" class="nav-link {{ activeSegment('settings') }}">
+                        <span class="nav-icon"><i class="fas fa-cog"></i></span>
+                        <span class="nav-text">{{ __('settings.title') }}</span>
+                    </a>
+                </li>
             @endcan
 
             <li class="nav-item">

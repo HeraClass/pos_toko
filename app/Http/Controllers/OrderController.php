@@ -246,39 +246,50 @@ class OrderController extends Controller
         $user = $request->user();
         $cart = $user->cart()->get();
 
-        // Cek stok tiap item sebelum buat order
-        foreach ($cart as $item) {
-            if ($item->pivot->quantity > $item->quantity) {
-                return response([
-                    'message' => __('cart.available', ['quantity' => $item->quantity]),
-                ], 400);
-            }
+        if ($cart->isEmpty()) {
+            return response()->json([
+                'message' => 'Cart is empty'
+            ], 400);
         }
 
-        // Jika semua valid, lanjut buat order
-        $order = Order::create([
-            'customer_id' => $request->customer_id,
-            'user_id' => $user->id,
-        ]);
+        DB::transaction(function () use ($request, $user, $cart, &$order) {
 
-        foreach ($cart as $item) {
-            $order->items()->create([
-                'price' => $item->price * $item->pivot->quantity,
-                'quantity' => $item->pivot->quantity,
-                'product_id' => $item->id,
+            // 1️⃣ Buat order dulu
+            $order = Order::create([
+                'customer_id' => $request->customer_id,
+                'user_id' => $user->id,
             ]);
 
-            // kurangi stok produk
-            $item->decrement('quantity', $item->pivot->quantity);
-        }
+            // 2️⃣ Simpan item (SNAPSHOT HARGA)
+            foreach ($cart as $item) {
+                $unitPrice = $item->price;
+                $qty = $item->pivot->quantity;
 
-        // kosongkan cart setelah checkout
-        $user->cart()->detach();
+                // cek stok
+                if ($qty > $item->quantity) {
+                    throw new \Exception("Stock not sufficient for {$item->name}");
+                }
 
-        $order->payments()->create([
-            'amount' => $request->amount,
-            'user_id' => $user->id,
-        ]);
+                $order->items()->create([
+                    'product_id' => $item->id,
+                    'quantity' => $qty,
+                    'unit_price' => $unitPrice,
+                    'subtotal' => $unitPrice * $qty,
+                ]);
+
+                // kurangi stok
+                $item->decrement('quantity', $qty);
+            }
+
+            // 3️⃣ Simpan pembayaran
+            $order->payments()->create([
+                'amount' => $request->amount,
+                'user_id' => $user->id,
+            ]);
+
+            // 4️⃣ Kosongkan cart
+            $user->cart()->detach();
+        });
 
         return response()->json([
             'success' => true,
